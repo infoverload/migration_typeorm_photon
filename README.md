@@ -1,2 +1,1 @@
-# migration_typeorm_photon
-# migration_typeorm_photon
+# Migrating from TypeORM to Photon
