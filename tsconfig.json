@@ -1,0 +1,19 @@
+{
+    "compilerOptions": {
+      "sourceMap": true,
+      "strictFunctionTypes": true,
+      "noImplicitAny": true,
+      "noImplicitThis": true,
+      "alwaysStrict": true,
+      "lib": ["esnext", "dom", "es5", "es6"],
+      "target": "es6",
+      "module": "commonjs",
+      "moduleResolution": "node",
+      "emitDecoratorMetadata": true,
+      "experimentalDecorators": true,
+      "skipLibCheck": true 
+    },
+    "exclude": [
+      "node_modules"
+    ]
+}

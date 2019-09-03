@@ -1,0 +1,30 @@
+{
+  "name": "migration_typeorm_photon",
+  "version": "1.0.0",
+  "description": "Migrate from TypeORM to Photon",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "tsc && node src/index.js",
+    "typeorm": "./node_modules/.bin/typeorm "
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/infoverload/migration_typeorm_photon.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/infoverload/migration_typeorm_photon/issues"
+  },
+  "homepage": "https://github.com/infoverload/migration_typeorm_photon#readme",
+  "devDependencies": {
+    "@types/node": "^12.7.3",
+    "typescript": "^3.5.3"
+  },
+  "dependencies": {
+    "pg": "^7.12.1",
+    "reflect-metadata": "^0.1.13",
+    "typeorm": "^0.2.18"
+  }
+}
