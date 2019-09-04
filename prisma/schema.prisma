@@ -4,11 +4,11 @@ generator photon {
 
 datasource db {
   provider = "postgresql"
-  url      = "postgresql://prisma:prisma@127.0.0.1:5432/prisma2?schema=public"
+  url      = "postgresql://user:password@127.0.0.1:5432/database?schema=public"
 }
 
 model Category {
-  id                     Int @id
+  id                     Int                      @id
   name                   String
   postCategoriesCategory PostCategoriesCategory[]
 
@@ -16,7 +16,7 @@ model Category {
 }
 
 model Post {
-  id                     Int @id
+  id                     Int                      @id
   postCategoriesCategory PostCategoriesCategory[]
   text                   String
   title                  String
@@ -25,7 +25,7 @@ model Post {
 }
 
 model PostCategoriesCategory {
-  id                     Int  @id
+  id         Int           @id
   categoryId Category
   postId     Post
 

@@ -1,5 +1,5 @@
 node_modules
+dist
 src/**/*.js
 src/**/*.js.map
 prisma/migrations
-dist
