@@ -26,7 +26,7 @@ app.get(`/posts/:id`, async (req, res) => {
     const { id } = req.params
     const post = await photon.posts.findOne({ 
         where: { 
-            id,
+          id: Number(id),
         },
     })
     res.json(post)
@@ -47,8 +47,13 @@ app.put('/posts/:id', async (req, res) => {
   const { id } = req.params
   const { text, title } = req.body
   const post = await photon.posts.update({
-    where: { id },
-    data: { text, title },
+    where: { 
+      id: Number(id), 
+    },
+    data: { 
+        text, 
+        title,
+    },
   })
   res.json(post)
 })
@@ -56,9 +61,9 @@ app.put('/posts/:id', async (req, res) => {
 app.delete(`/posts/:id`, async (req, res) => {
   const { id } = req.params
   const post = await photon.posts.delete({ 
-      where: { 
-          id,
-      },
+    where: { 
+        id: Number(id),
+    },
   })
   res.json(post)
 })
