@@ -3,8 +3,7 @@ import {createConnection} from "typeorm";
 import {Request, Response} from "express";
 import * as express from "express";
 import * as bodyParser from "body-parser";
-import {Post} from "../entity/Post";
-import {Category} from "../entity/Category";
+import {Post} from "./entity/Post";
 
 // connection settings are in the "ormconfig.json" file
 createConnection().then(connection => {
