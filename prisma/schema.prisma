@@ -1,0 +1,33 @@
+generator photon {
+  provider = "photonjs"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = "postgresql://prisma:prisma@127.0.0.1:5432/prisma2?schema=public"
+}
+
+model Category {
+  id                     Int                      @id
+  name                   String
+  postCategoriesCategory PostCategoriesCategory[]
+
+  @@map("category")
+}
+
+model Post {
+  id                     Int                      @id
+  postCategoriesCategory PostCategoriesCategory[]
+  text                   String
+  title                  String
+
+  @@map("post")
+}
+
+model PostCategoriesCategory {
+  id                     Int                      @id
+  categoryId Category
+  postId     Post
+
+  @@map("post_categories_category")
+}
