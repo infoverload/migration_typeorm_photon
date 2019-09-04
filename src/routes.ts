@@ -1,6 +1,9 @@
 import {postGetAllAction} from "./controller/PostGetAllAction";
 import {postGetByIdAction} from "./controller/PostGetByIdAction";
 import {postSaveAction} from "./controller/PostSaveAction";
+import {postFilterAction} from "./controller/PostFilterAction";
+import {postUpdateAction} from "./controller/PostUpdateAction";
+import {postDeleteAction} from "./controller/PostDeleteAction";
 
 /**
  * All application routes.

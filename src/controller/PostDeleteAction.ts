@@ -11,9 +11,7 @@ export async function postDeleteAction(request: Request, response: Response) {
     const postRepository = getManager().getRepository(Post);
 
     // find the post and remove it
-    const result = await postRepository.delete({ 
-        where: { id: request.params.id } 
-    });
+    const result = await postRepository.delete(request.params.id);
 
     return response.send(result);
     
