@@ -4,7 +4,7 @@ generator photon {
 
 datasource db {
   provider = "postgresql"
-  url      = "postgresql://prisma:prisma@127.0.0.1:5432/prisma2?schema=public"
+  url      = "postgresql://user:password@127.0.0.1:5432/database?schema=public"
 }
 
 model Category {
