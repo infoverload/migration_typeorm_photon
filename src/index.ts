@@ -1,26 +1,28 @@
 import "reflect-metadata";
 import {createConnection} from "typeorm";
-import {Post} from "./entity/Post";
-import {Category} from "./entity/Category";
+import {Request, Response} from "express";
+import * as express from "express";
+import * as bodyParser from "body-parser";
+import {AppRoutes} from "./routes";
 
 // connection settings are in the "ormconfig.json" file
 createConnection().then(async connection => {
 
-    const category1 = new Category();
-    category1.name = "TypeScript";
-    await connection.manager.save(category1);
-
-    const category2 = new Category();
-    category2.name = "Programming";
-    await connection.manager.save(category2);
-
-    const post = new Post();
-    post.title = "Migrate from TypeORM to PhotonJS";
-    post.text = `It is easy to migrate from TypeORM to PhotonJS!`;
-    post.categories = [category1, category2];
-
-    await connection.manager.save(post);
-
-    console.log("Post has been saved: ", post);
+        // create express app
+        const app = express();
+        app.use(bodyParser.json());
+    
+        // register all application routes
+        AppRoutes.forEach(route => {
+            (app as any)[route.method](route.path, (request: Request, response: Response, next: Function) => {
+                route.action(request, response)
+                    .then(() => next)
+                    .catch(err => next(err));
+            });
+        });
+    
+        // run app
+        app.listen(3000);
+        console.log("Express application is up and running on port 3000");
 
 }).catch(error => console.log("Error: ", error));
