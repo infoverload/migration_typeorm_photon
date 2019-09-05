@@ -57,7 +57,11 @@ This will initialize a new Prisma2 project name "db_introspect" and start the in
 
 > **Note**: We are always looking to improve the Prisma2 CLI init flow and welcome your input.  Join the [`#prisma2-preview`](https://prisma.slack.com/messages/CKQTGR6T0/) channel on [Slack](https://slack.prisma.io/) to share your feedback directly! 
 
-The introspection process is now complete. Navigate to the project directory  and you will see: 
+The introspection process is now complete.  
+
+- talk about `prisma2 dev` briefly
+
+Navigate to the project directory  and you will see: 
 
 ```
 prisma
@@ -138,21 +142,122 @@ import Photon from '@generated/photon'
 
 const photon = new Photon()
 ```
+Now you can start using the `photon` instance and start interacting with your data source. 
 
 ## Creating data models
 
-- highlight the different data modelling
-    - TypeORM: 
-        - Entity is a class that maps to a database table. You can create an entity by defining a new class and mark it with @Entity():
-    - Photon: prisma.schema
-    - how does each define a new database table, columns, fields, primary key, relations
+In TypeORM, data models are called `entities`.  It is recommended to define one entity class per file. TypeORM allows you to use your classes as database models and provides a declarative way to define what part of your model will become part of your database table. Entity is a class that maps to a database table. You can create an entity by defining a new class and mark it with @Entity(), like this:
 
+```ts
+import {Column, PrimaryGeneratedColumn, Entity} from "typeorm";
+
+@Entity()
+export class Category {
+
+    @PrimaryGeneratedColumn()
+    id: number;
+
+    @Column()
+    name: string;
+
+}
+```
+
+```ts
+import {Column, Entity, JoinTable, ManyToMany, PrimaryGeneratedColumn} from "typeorm";
+
+@Entity()
+export class Post {
+
+    @PrimaryGeneratedColumn()
+    id: number;
+
+    @Column()
+    title: string;
+
+    @Column("text")
+    text: string;
+
+    @ManyToMany(type => Category, {
+        cascade: true
+    })
+    @JoinTable()
+    categories: Category[];
+}
+```
+
+In our Photon project, these model definitions are located in the Prisma schema. 
+
+Next, we define our [model definitions](https://github.com/prisma/prisma2/blob/master/docs/data-modeling.md). Models represent the entities of our application domain, define the underlying database schema, and is the foundation for the auto-generated CRUD operations of the database client.
+
+Let's define a simple `User` and `Post` model to our schema file:
+
+```ts
+model Category {
+  id                     Int                      @id
+  name                   String
+  postCategoriesCategory PostCategoriesCategory[]
+
+  @@map("category")
+}
+
+model Post {
+  id                     Int                      @id
+  postCategoriesCategory PostCategoriesCategory[]
+  text                   String
+  title                  String
+
+  @@map("post")
+}
+
+model PostCategoriesCategory {
+  id         Int           @id
+  categoryId Category
+  postId     Post
+
+  @@map("post_categories_category")
+}
+```
+
+`Category` and `Post` will each be mapped to database tables. The fields will be mapped to columns of the tables. Note that there is a many-to-many relation between `Category` and `Post` via the `PostCategoriesCategory` composite table and the `@id` directive indicates that this field is used as the _primary key_. 
+
+When introspecting a database, the Prisma 2 engine currently only recognizes many-to-many relations that follow the Prisma conventions for relation tables.  So when you [introspected](https://github.com/prisma/prisma2/blob/master/docs/introspection.md) the existing database schema from the TypeORM project, you will encounter a bug specifying "Model PostCategoriesCategory does not have an id field".  
+
+This is a known [limitation](https://github.com/prisma/prisma2/blob/master/docs/limitations.md). A workaround is to add a primary key id in the `PostCategoriesCategory` model manually:
+
+```ts
+model PostCategoriesCategory {
+  id         Int           @id
+}
+
+```
+
+If you change your datamodel, you can just regenerate your Prisma client and all typings will be updated.
 
 ## Working with models
 
 
-
 ## Querying our data source
-
+- translate db queries in TypeORM to Photon
+- ACID 
+    - what is it?
+    - Photon does not support it but provides ways to achieve similar goals
+- code examples (from this in TypeORM to this in Photon)
+- example of transaction in TypeORM → translated to nested write in Photon API
 
 ## Working with relations
+- how does each one handle eager and lazy loading?
+- TypeORM QueryBuilder vs Photon Filtering API
+    - not really similar to ORMs and not comparable
+- emphasize auto-generated db client!!
+- abstraction that photon provides is even higher than query builder
+- querybuilder is a thin abstraction and you still need to understand sql inorder to apply it
+- photonjs abstracts sql so much you don't need to know it to be productive
+
+eager loading in photon
+- include, select
+
+## Summary
+- what have we achieved?
+- where can you look for further resources?
+- links
