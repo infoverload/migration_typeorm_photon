@@ -1,22 +1,18 @@
 # Tutorial: Migrating from TypeORM to Photon
 
-## Introduction
+[TypeORM](https://typeorm.io/) and [Photon](https://photonjs.prisma.io/) both act as an abstraction layer between your application and your data source but also have different characteristics. In this tutorial, we will contrast and compare these two APIs and walk through how to migrate from a TypeORM project to a Photon one.
 
-An Object Relational Mapper (ORM) is the layer that sits between your database and your application and transforms data in the form of objects into relational data that can be stored in a database and vice versa.  When it comes to working with data in an application, you are probably going to need an ORM in one form or another. There are many different types of ORMs and the differences may become relevant as your application evolves and have specific characteristics. 
+| TypeORM                         | Photon                              |
+|---------------------------------|-------------------------------------|
+|- a popular ORM library          |- an auto-generated database client  | 
+|- supports Active Record and     |- supports Data Mapper patterns      |
+|  Data Mapper patterns           |                                     | 
+|- JavaScript, TypeScript         |- JavaScript, TypeScript, Go (soon)  |
+|- supports MySQL, MariaDB,       |- supports MySQL, Postgres, with     |
+|  Postgres, SQLite, Oracle,      |  to come                            |
+|  Microsoft SQL Server, sql.js   |                                     |
 
-[TypeORM](https://typeorm.io/) is a popular ORM library in the TypeScript ecosystem that supports both Active Record and Data Mapper patterns (link to resource).  It converts data between JavaScript/TypeScript to a variety of databases such as MySQL / MariaDB / Postgres / SQLite / Microsoft SQL Server / Oracle / sql.js. 
-
-[Photon](https://photonjs.prisma.io/) is an auto-generated database client for JavaScript/TypeScript. The client is based on your database schema and reduces a lot of boilerplate code by creating a data model which generates a lot of things based on the types there.  Photon currently has support for Postgres and MySQL databases with more to come. 
-
-|   |   |
-|---|---|
-|   |   | 
-|   |   |
-|   |   | 
-
-- compares major characteristics and differences between the two APIs
-
-TypeORM and Photon both act as an abstraction layer between your application and your data source but also have different characteristics. In this tutorial, we will contrast and compare these two APIs and walk through how to migrate from a TypeORM project to a Photon one. 
+[not sure if a Venn diagram would look nicer]
 
 > **Note**: If you encounter any problems with this tutorial or any parts of Prisma 2, this is how you can get help: **create an issue on [GitHub](https://github.com/prisma/prisma2/issues)** or join the [`#prisma2-preview`](https://prisma.slack.com/messages/CKQTGR6T0/) channel on [Slack](https://slack.prisma.io/) to share your feedback directly. We also have a community forum on [Spectrum](https://spectrum.chat/prisma).
 
@@ -68,7 +64,8 @@ prisma
 └── schema.prisma
 ```
 
-- explain what prisma schema file is briefly
+The [Prisma schema file](https://github.com/prisma/prisma2/blob/master/docs/prisma-schema-file.md) is the main configuration file for your Prisma setup. 
+
 - talk about the relations bug and point to limitations
 
 - many to many relationships correctly don't work in data model
