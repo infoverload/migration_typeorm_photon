@@ -124,11 +124,19 @@ import Photon from '@generated/photon'
 In TypeORM, you create a connection like this: 
 
 ```ts
+import {createConnection} from "typeorm";
+
+createConnection().then(connection => {
+    // application code goes here
+}).catch(error => console.log("Error: ", error));
 ```
 
-In Photon, you create a connection in the prisma.schema file:
+In Photon, you create a connection like this:
 
 ```ts
+import Photon from '@generated/photon'
+
+const photon = new Photon()
 ```
 
 ## Creating data models
