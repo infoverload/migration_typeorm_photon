@@ -64,23 +64,12 @@ prisma
 └── schema.prisma
 ```
 
-The [Prisma schema file](https://github.com/prisma/prisma2/blob/master/docs/prisma-schema-file.md) is the main configuration file for your Prisma setup. 
-
-- talk about the relations bug and point to limitations
-
-- many to many relationships correctly don't work in data model
-- workaround is to add an primary key id manually
-- or don't use many to many relationships
-- link to the current limitations page
-
-
-- show this many to many relationships
-- point to the current limitation and how to get around it
+The [Prisma schema file](https://github.com/prisma/prisma2/blob/master/docs/prisma-schema-file.md) is the main configuration file for your Prisma setup.  It holds the specifications and credentials for our data source, our data model definitions, and generators.  The migration process to Photon will all begin from this file. 
 
 
 ## Defining our data source
 
-In the TypeORM project, the data source and credentials are defined in the `ormconfig.json` file:
+In the TypeORM project, the data source and credentials are defined in the [`ormconfig.json`](https://github.com/infoverload/migration_typeorm_photon/blob/typeorm/ormconfig.json) file:
 
 ```ts
 {
@@ -95,7 +84,7 @@ In the TypeORM project, the data source and credentials are defined in the `ormc
   "logging": true
 }
 ```
-In your Photon project, this will be automatically set in your `schema.prisma` file from the introspection process:
+In your Photon project, this will be automatically set in your [`schema.prisma`](https://github.com/infoverload/migration_typeorm_photon/blob/master/prisma/schema.prisma) file from the introspection process:
 
 ```ts
 datasource db {
