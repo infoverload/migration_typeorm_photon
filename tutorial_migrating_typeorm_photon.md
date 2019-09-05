@@ -93,6 +93,32 @@ datasource db {
 }
 ```
 
+## Installing and importing the library
+
+TypeORM and Photon are both installed as node modules. When you run `prisma2 generate`, this will read the `generator` definition in your Prisma schema:
+
+```ts
+generator photon {
+  provider = "photonjs"
+}
+```
+and generate a Photon client. A `photon` directory is generated inside `node_modules/@generated`:
+
+├── node_modules
+│   └── @generated
+│       └── photon
+│           └── runtime
+│               ├── index.d.ts
+│               └── index.js
+
+This is the default path but can be [customized](https://github.com/prisma/prisma2/blob/master/docs/photon/codegen-and-node-setup.md). It is best not to change the files in the generated directory because it will get overwritten.
+
+Now we can import Photon in our code like this:
+
+```ts
+import Photon from '@generated/photon'
+```
+
 ## Setting up a connection
 
 In TypeORM, you create a connection like this: 
