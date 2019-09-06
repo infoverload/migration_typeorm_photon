@@ -8,8 +8,8 @@
 |supported design patterns|- Active Record, Data Mapper    |- Data Mapper                       |
 |language support         |- JavaScript, TypeScript        |- JavaScript, TypeScript, Go (soon) |
 |database support         |- MySQL, MariaDB, Postgres,<br> |- MySQL, Postgres, with more to come|
-|                         |  SQLite, Oracle, sql.js   <br> |                                    |
-|                         |  Microsoft SQL Server          |                                    |
+|                         |SQLite, Oracle, sql.js <br>     |                                    |
+|                         |Microsoft SQL Server            |                                    |
 
 [not sure if a Venn diagram would look nicer]
 
