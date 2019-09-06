@@ -121,7 +121,7 @@ and generate a Photon.js client. A `photon` directory is generated inside `node_
 
 This is the default path but can be [customized](https://github.com/prisma/prisma2/blob/master/docs/photon/codegen-and-node-setup.md). It is best not to change the files in the generated directory because it will get overwritten.
 
-Now we can import Photon.js in our code like this:
+Now you can import Photon.js in the [index.ts](https://github.com/infoverload/migration_typeorm_photon/blob/master/src/index.ts) file like this:
 
 ```ts
 import Photon from '@generated/photon'
@@ -129,8 +129,9 @@ import Photon from '@generated/photon'
 
 ## 4. Setting up a connection
 
-In TypeORM, you create a connection like this: 
+In TypeORM, you create a connection to your database like this: 
 
+[index.ts](https://github.com/infoverload/migration_typeorm_photon/blob/typeorm/src/index.ts)
 ```ts
 import {createConnection} from "typeorm";
 
@@ -139,20 +140,22 @@ createConnection().then(connection => {
 }).catch(error => console.log("Error: ", error));
 ```
 
-In Photon.js, you create a connection like this:
+In Photon.js, you create a connection to your database like this:
 
+[index.ts](https://github.com/infoverload/migration_typeorm_photon/blob/master/src/index.ts)
 ```ts
 import Photon from '@generated/photon'
 
 const photon = new Photon()
 ```
-Now you can start using the `photon` instance and start interacting with your data source. 
+Now you can start using the `photon` instance and start interacting with your database. 
 
 
 ## 5. Creating data models
 
 In TypeORM, data models are called "entities".  It is recommended to define one entity class per file. TypeORM allows you to use your classes as database models and provides a declarative way to define what part of your model will become part of your database table. Entity is a class that maps to a database table. You can create an entity by defining a new class and mark it with `@Entity()`, like this:
 
+[Category.ts](https://github.com/infoverload/migration_typeorm_photon/blob/typeorm/src/entity/Category.ts)
 ```ts
 import {Column, PrimaryGeneratedColumn, Entity} from "typeorm";
 
@@ -168,6 +171,7 @@ export class Category {
 }
 ```
 
+[Post.ts](https://github.com/infoverload/migration_typeorm_photon/blob/typeorm/src/entity/Post.ts)
 ```ts
 import {Column, Entity, JoinTable, ManyToMany, PrimaryGeneratedColumn} from "typeorm";
 
@@ -228,6 +232,7 @@ When introspecting a database, Prisma currently only recognizes many-to-many rel
 
 This is a known [limitation](https://github.com/prisma/prisma2/blob/master/docs/limitations.md). A workaround is to add a primary key id in the `PostCategoriesCategory` model manually:
 
+[schema.prisma](https://github.com/infoverload/migration_typeorm_photon/blob/master/prisma/schema.prisma#L28)
 ```ts
 model PostCategoriesCategory {
   id         Int           @id
@@ -235,13 +240,13 @@ model PostCategoriesCategory {
 
 ```
 
-If you change your datamodel, you can just regenerate your Prisma client and all typings will be updated.
+If you change your datamodel, you can regenerate your Prisma client and all typings will be updated.
 
 
 ## 6. Working with models
 
 
-## 7. Querying our data source
+## 7. Querying the database
 - translate db queries in TypeORM to Photon
 - ACID 
     - what is it?
@@ -262,6 +267,6 @@ eager loading in photon
 - include, select
 
 ## Summary
-- what have we achieved?
+- what have you achieved?
 - where can you look for further resources?
 - links
