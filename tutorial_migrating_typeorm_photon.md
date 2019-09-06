@@ -18,13 +18,13 @@
 ## Goals
 
 This tutorial will show you how you can achieve the following in your Photon.js project:
-1. [Obtaining the database schema from your Postgres database]((#1.-introspect-the-existing-database-schema-from-the-TypeORM-project))
-2. [Defining the data source](#2.-Defining-the-data-source)
-3. [Installing and importing the library](#3.-Installing-and-importing-the-library)
-4. [Setting up a connection](#4.-Setting-up-a-connection)
-5. [Data modelling](#5.-Creating-data-models)
-6. [Working with models](#6.-Working-with-models)
-7. [Building queries](#7.-Building-queries)
+1. [Obtaining the database schema from your Postgres database](#1-introspect-the-existing-database-schema-from-the-TypeORM-project)
+2. [Defining the data source](#2-Defining-the-data-source)
+3. [Installing and importing the library](#3-Installing-and-importing-the-library)
+4. [Setting up a connection](#4-Setting-up-a-connection)
+5. [Data modelling](#5-Creating-data-models)
+6. [Working with models](#6-Working-with-models)
+7. [Building queries](#7-Building-queries)
 
 ## Prerequisites
 
