@@ -1,6 +1,6 @@
-# Tutorial: Migrating from TypeORM to Photon
+# Tutorial: Migrating from TypeORM to Photon.js
 
-[TypeORM](https://typeorm.io/) and [Photon.js](https://photonjs.prisma.io/) both act as an abstraction layer between your application and your databases but provides different types of abstractions and works differently under the hood. In this tutorial, we will contrast and compare both approaches for working with databases and walk through how to migrate from a TypeORM project to a Photon one.
+[TypeORM](https://typeorm.io/) and [Photon.js](https://photonjs.prisma.io/) both act as an abstraction layer between your application and your databases but provides different types of abstractions and works differently under the hood. While migrating an ORM to Photon.js may be an investment in time and resources, you will see the benefits in the long run as the Prisma engine allows you to write more explicit, clear, and performant code.  In this tutorial, we will contrast and compare both approaches for working with databases and walk through how to migrate from a TypeORM project to a Photon one.
 
 |                         |TypeORM                     | Photon.js                          |
 |-------------------------|----------------------------|------------------------------------|
@@ -20,10 +20,11 @@ This tutorial assumes that you have some basic familiarity with:
 
 - TypeScript
 - Node.js
+- PostgreSQL
 
-You will use **TypeScript** with a **PostgreSQL** database in this tutorial. You can set up your PostgreSQL database locally or use a hosting provider such as [Heroku](https://elements.heroku.com/addons) or [Digital Ocean](https://www.digitalocean.com/community/tutorials/how-to-install-and-use-postgresql-on-ubuntu-18-04).
+You will use **TypeScript** with a **PostgreSQL** database in this tutorial. You can set up your PostgreSQL database [locally](https://www.robinwieruch.de/postgres-sql-macos-setup) or use a hosting provider such as [Heroku](https://elements.heroku.com/addons) or [Digital Ocean](https://www.digitalocean.com/community/tutorials/how-to-install-and-use-postgresql-on-ubuntu-18-04).
 
-Make sure that your database server is [running](https://tableplus.com/blog/2018/10/how-to-start-stop-restart-postgresql-server.html).
+Make sure that your database server is [running](https://tableplus.com/blog/2018/10/how-to-start-stop-restart-postgresql-server.html) and that you know your credentials and have a database created for the tutorial. 
 
 You will be migrating a REST API built with the [Express](https://expressjs.com/) framework.  The example project can be found in this [repository](https://github.com/infoverload/migration_typeorm_photon). 
 
@@ -45,7 +46,16 @@ The TypeORM version of the project can be found in the [`typeorm`](https://githu
 git checkout typeorm
 ```
 
-The Photon.js version of the project is in the [`master`](https://github.com/infoverload/migration_typeorm_photon/tree/master) branch. To switch to this branch, type:
+This tutorial will show you how you can achieve the following in your Photon.js project:
+1. [Obtaining the database schema from your Postgres database]((#1.-introspect-the-existing-database-schema-from-the-TypeORM-project))
+2. [Defining the data source](#2.-Defining-the-data-source)
+3. [Installing and importing the library](#3.-Installing-and-importing-the-library)
+4. [Setting up a connection](#4.-Setting-up-a-connection)
+5. [Data modelling](#5.-Creating-data-models)
+6. [Working with models](#6.-Working-with-models)
+7. [Building queries](#7.-Building-queries)
+
+The finished Photon.js version of the project is in the [`master`](https://github.com/infoverload/migration_typeorm_photon/tree/master) branch. To switch to this branch, type:
 
 ```sh
 git checkout master
@@ -61,12 +71,12 @@ Make sure that you have the [Prisma 2 CLI](https://github.com/prisma/prisma2/blo
 npm install -g prisma2
 ```
 
-Now you are ready to [introspect](https://github.com/prisma/prisma2/blob/master/docs/introspection.md) the database from the TypeORM project.  In your terminal, type the command:
+Now you are ready to [introspect](https://github.com/prisma/prisma2/blob/master/docs/introspection.md) the database from the TypeORM project.  Navigate outside of the current project directory so you can start a new project. In your terminal, type the command:
 
 ```sh
-prisma2 init db_introspect
+prisma2 init photonjs_app
 ```
-This will initialize a new Prisma project name "db_introspect" and start the init process:  
+This will initialize a new Prisma project name "photonjs_app" and start the init process:  
 
 1. Under "Languages for starter kits", select `Blank project `.
 2. Under "Supported databases", select `PostgreSQL`.
@@ -77,23 +87,36 @@ This will initialize a new Prisma project name "db_introspect" and start the ini
 7. Under "Photon is available in these languages", select `TypeScript`.
 8. You can then choose to work with a "Demo script" or "Just the Prisma schema".  Choose the latter.  
 
-The introspection process is now complete.  
-
-In your terminal, type:
-
-```sh
-prisma2 dev
+The introspection process is now complete.  You should see a message like:
 ```
-This launches the [development mode](https://github.com/prisma/prisma2/blob/master/docs/development-mode.md) and creates a [Prisma Studio](https://github.com/prisma/studio) endpoint for you.  Go to the endpoint (i.e. http://localhost:5555 ) and explore the generated Prisma schema in your browser. 
+ SUCCESS  The introspect directory was created!
+ SUCCESS  Prisma is connected to your database at localhost
+```
 
 If you explore the project directory, you will see: 
-
 ```
 prisma
 └── schema.prisma
 ```
 
 The [Prisma schema file](https://github.com/prisma/prisma2/blob/master/docs/prisma-schema-file.md) is the main configuration file for your Prisma setup.  It holds the specifications and credentials for your database, your data model definitions, and generators.  The migration process to Photon.js will all begin from this file. 
+
+When introspecting a database, Prisma currently only recognizes many-to-many relations that follow the Prisma conventions for relation tables.  So when you [introspected](https://github.com/prisma/prisma2/blob/master/docs/introspection.md) the existing database schema from the TypeORM project, you will encounter a bug specifying "Model PostCategoriesCategory does not have an id field" if you type `prisma2 dev`.  
+
+This is a known [limitation](https://github.com/prisma/prisma2/blob/master/docs/limitations.md). A workaround is to add a primary key id in the `PostCategoriesCategory` model manually in [schema.prisma](https://github.com/infoverload/migration_typeorm_photon/blob/master/prisma/schema.prisma#L28) like this:
+
+```ts
+model PostCategoriesCategory {
+  id         Int           @id
+}
+```
+
+Now in your terminal, type:
+
+```sh
+prisma2 dev
+```
+This launches the [development mode](https://github.com/prisma/prisma2/blob/master/docs/development-mode.md) and creates a [Prisma Studio](https://github.com/prisma/studio) endpoint for you.  Go to the endpoint (i.e. http://localhost:5555 ) and explore the generated Prisma schema in your browser. 
 
 
 ## 2. Defining the data source
@@ -113,7 +136,7 @@ In the TypeORM project example, the data source and credentials are defined in t
   "logging": true
 }
 ```
-In your Photon.js project, this will be automatically set in your [`schema.prisma`](https://github.com/infoverload/migration_typeorm_photon/blob/master/prisma/schema.prisma) file from the introspection process:
+In your Photon.js project, this will be automatically generated in your [`schema.prisma`](https://github.com/infoverload/migration_typeorm_photon/blob/master/prisma/schema.prisma) file from the introspection process:
 
 ```ts
 datasource db {
@@ -126,7 +149,7 @@ datasource db {
 
 TypeORM is installed as a [node nodule](https://www.npmjs.com/package/typeorm) with `npm install`, whereas Photon.js is generated by the Prisma engine. 
 
-Switch to the [`master`](https://github.com/infoverload/migration_typeorm_photon/tree/master) branch of the project. Then, in your terminal, run: 
+Make sure you are in your `photonjs_app` project directory. Then, in your terminal, run: 
 
 ```sh
 prisma2 generate
@@ -139,7 +162,7 @@ generator photon {
   provider = "photonjs"
 }
 ```
-and generate a Photon.js client. A `photon` directory is generated inside `node_modules/@generated`:
+and generates a Photon.js client. A `photon` directory is generated inside `node_modules/@generated`:
 
 ```
 ├── node_modules
@@ -152,7 +175,7 @@ and generate a Photon.js client. A `photon` directory is generated inside `node_
 
 This is the default path but can be [customized](https://github.com/prisma/prisma2/blob/master/docs/photon/codegen-and-node-setup.md). It is best not to change the files in the generated directory because it will get overwritten.
 
-Now you can import Photon.js in the [index.ts](https://github.com/infoverload/migration_typeorm_photon/blob/master/src/index.ts) file like this:
+Now you can import Photon.js in your project.  Create an `index.ts` file and import the library like this: 
 
 ```ts
 import Photon from '@generated/photon'
@@ -171,9 +194,8 @@ createConnection().then(connection => {
 }).catch(error => console.log("Error: ", error));
 ```
 
-In Photon.js, you create a connection to your database like this:
+In the `index.ts` file of your Photon.js project, create a connection to your database like this:
 
-[index.ts](https://github.com/infoverload/migration_typeorm_photon/blob/master/src/index.ts)
 ```ts
 import Photon from '@generated/photon'
 
@@ -184,51 +206,31 @@ Now you can start using the `photon` instance and start interacting with your da
 
 ## 5. Creating data models
 
-In TypeORM, data models are called "entities".  It is recommended to define one entity class per file. TypeORM allows you to use your classes as database models and provides a declarative way to define what part of your model will become part of your database table. Entity is a class that maps to a database table. You can create an entity by defining a new class and mark it with `@Entity()`, like this:
+In TypeORM, data models are called "entities".  It is recommended to define one entity class per file. This is why we have a [Category.ts](https://github.com/infoverload/migration_typeorm_photon/blob/typeorm/src/entity/Category.ts) file for the `Category` entity and a [Post.ts](https://github.com/infoverload/migration_typeorm_photon/blob/typeorm/src/entity/Post.ts) file for the `Post` entity.  TypeORM allows you to use your classes as database models and provides a declarative way to define what part of your model will become part of your database table. Entity is a class that maps to a database table. You can create an entity by defining a new class and mark it with `@Entity()`, like this:
 
 [Category.ts](https://github.com/infoverload/migration_typeorm_photon/blob/typeorm/src/entity/Category.ts)
 ```ts
-import {Column, PrimaryGeneratedColumn, Entity} from "typeorm";
+import {Entity} from "typeorm";
 
 @Entity()
 export class Category {
-
-    @PrimaryGeneratedColumn()
-    id: number;
-
-    @Column()
-    name: string;
 
 }
 ```
 
 [Post.ts](https://github.com/infoverload/migration_typeorm_photon/blob/typeorm/src/entity/Post.ts)
 ```ts
-import {Column, Entity, JoinTable, ManyToMany, PrimaryGeneratedColumn} from "typeorm";
+import {Entity} from "typeorm";
 
 @Entity()
 export class Post {
 
-    @PrimaryGeneratedColumn()
-    id: number;
-
-    @Column()
-    title: string;
-
-    @Column("text")
-    text: string;
-
-    @ManyToMany(type => Category, {
-        cascade: true
-    })
-    @JoinTable()
-    categories: Category[];
 }
 ```
 
-In our Photon.js project, these model definitions are located in the Prisma schema. Models represent the entities of our application domain, define the underlying database schema, and is the foundation for the auto-generated CRUD operations of the database client.
+In your Photon.js project, these model definitions are located in the Prisma schema and auto-generated from the introspection process. Models represent the entities of your application domain, define the underlying database schema, and is the foundation for the auto-generated CRUD operations of the database client.
 
-Take a look at your generated Prisma schema file [here](https://github.com/infoverload/migration_typeorm_photon/blob/master/prisma/schema.prisma).  The `Category` and `Post` entities from the TypeORM project is translated to `Category` and `Post` models:
+Take a look at your generated Prisma schema file ([example here](https://github.com/infoverload/migration_typeorm_photon/blob/master/prisma/schema.prisma)).  The `Category` and `Post` entities from the TypeORM project is translated to `Category` and `Post` models:
 
 ```ts
 model Category {
@@ -259,18 +261,6 @@ model PostCategoriesCategory {
 
 `Category` and `Post` are mapped to database tables. The fields are mapped to columns of the tables. Note that there is a many-to-many relation between `Category` and `Post` via the `PostCategoriesCategory` composite table and the `@id` directive indicates that this field is used as the _primary key_. 
 
-When introspecting a database, Prisma currently only recognizes many-to-many relations that follow the Prisma conventions for relation tables.  So when you [introspected](https://github.com/prisma/prisma2/blob/master/docs/introspection.md) the existing database schema from the TypeORM project, you will encounter a bug specifying "Model PostCategoriesCategory does not have an id field".  
-
-This is a known [limitation](https://github.com/prisma/prisma2/blob/master/docs/limitations.md). A workaround is to add a primary key id in the `PostCategoriesCategory` model manually:
-
-[schema.prisma](https://github.com/infoverload/migration_typeorm_photon/blob/master/prisma/schema.prisma#L28)
-```ts
-model PostCategoriesCategory {
-  id         Int           @id
-}
-
-```
-
 If you change your datamodel, you can regenerate your Prisma client and all typings will be updated.
 
 
@@ -278,13 +268,8 @@ If you change your datamodel, you can regenerate your Prisma client and all typi
 
 In TypeORM there are several ways to create and save a new model:
 
-const employee = new Employee(); // you can use constructor param
-
-const employee = Employee.create({ name: "John Doe", title: "senior engineer" });
-await employee.save();
 if you want to load an existing entity from the database and replace some of its properties you can use the following method:
 
-const employee = await Employee.preload({ id: 1, name: "John Doe" });
 
 
 ## 7. Querying the database
