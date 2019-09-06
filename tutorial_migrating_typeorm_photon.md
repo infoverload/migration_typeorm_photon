@@ -25,8 +25,31 @@ You will use **TypeScript** with a **PostgreSQL** database in this tutorial. You
 
 Make sure that your database server is [running](https://tableplus.com/blog/2018/10/how-to-start-stop-restart-postgresql-server.html).
 
-You will be migrating a REST API built with the [Express](https://expressjs.com/) framework.  The example project can be found in this[repository](https://github.com/infoverload/migration_typeorm_photon). The TypeORM version can be found in the [`typeorm`](https://github.com/infoverload/migration_typeorm_photon/tree/typeorm) branch and the Photon.js version in the [`master`](https://github.com/infoverload/migration_typeorm_photon/tree/master) branch.
+You will be migrating a REST API built with the [Express](https://expressjs.com/) framework.  The example project can be found in this [repository](https://github.com/infoverload/migration_typeorm_photon). 
 
+Clone the repository:
+
+```sh
+git clone https://github.com/infoverload/migration_typeorm_photon
+```
+
+Navigate to the directory:
+
+```sh
+cd migration_typeorm_photon
+```
+
+The TypeORM version of the project can be found in the [`typeorm`](https://github.com/infoverload/migration_typeorm_photon/tree/typeorm) branch.  To switch to the branch, type:
+
+```sh
+git checkout typeorm
+```
+
+The Photon.js version of the project is in the [`master`](https://github.com/infoverload/migration_typeorm_photon/tree/master) branch. To switch to this branch, type:
+
+```sh
+git checkout master
+```
 
 ## 1. Introspect the existing database schema from the TypeORM project
 
@@ -244,6 +267,16 @@ If you change your datamodel, you can regenerate your Prisma client and all typi
 
 
 ## 6. Working with models
+
+In TypeORM there are several ways to create and save a new model:
+
+const employee = new Employee(); // you can use constructor param
+
+const employee = Employee.create({ name: "John Doe", title: "senior engineer" });
+await employee.save();
+if you want to load an existing entity from the database and replace some of its properties you can use the following method:
+
+const employee = await Employee.preload({ id: 1, name: "John Doe" });
 
 
 ## 7. Querying the database
