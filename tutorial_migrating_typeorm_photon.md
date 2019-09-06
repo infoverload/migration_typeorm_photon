@@ -2,12 +2,12 @@
 
 [TypeORM](https://typeorm.io/) and [Photon.js](https://photonjs.prisma.io/) both act as an abstraction layer between your application and your databases but provides different types of abstractions and works differently under the hood. While migrating an ORM to Photon.js may be an investment in time and resources, you will see the benefits in the long run as the Prisma engine allows you to write more explicit, clear, and performant code.  In this tutorial, we will contrast and compare both approaches for working with databases and walk through how to migrate from a TypeORM project to a Photon one.
 
-|                         |TypeORM                                                                  | Photon.js                          |
-|-------------------------|-------------------------------------------------------------------------|------------------------------------|
-|classification           |- ORM library                                                            |- an auto-generated database client | 
-|supported design patterns|- Active Record, Data Mapper                                             |- Data Mapper                       |
-|language support         |- JavaScript, TypeScript                                                 |- JavaScript, TypeScript, Go (soon) |
-|database support         |- MySQL, MariaDB, Postgres, SQLite, Oracle, sql.js, Microsoft SQL Server |- MySQL, Postgres, with more to come|
+|                         |TypeORM                                                                        | Photon.js                          |
+|-------------------------|-------------------------------------------------------------------------------|------------------------------------|
+|classification           |- ORM library                                                                  |- an auto-generated database client | 
+|supported design patterns|- Active Record, Data Mapper                                                   |- Data Mapper                       |
+|language support         |- JavaScript, TypeScript                                                       |- JavaScript, TypeScript, Go (soon) |
+|database support         |- MySQL, MariaDB, Postgres,<br>SQLite, Oracle, sql.js,<br>Microsoft SQL Server |- MySQL, Postgres, with more to come|
 
 [not sure if a Venn diagram would look nicer]
 
