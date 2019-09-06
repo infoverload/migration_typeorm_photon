@@ -2,14 +2,14 @@
 
 [TypeORM](https://typeorm.io/) and [Photon.js](https://photonjs.prisma.io/) both act as an abstraction layer between your application and your databases but provides different types of abstractions and works differently under the hood. In this tutorial, we will contrast and compare both approaches for working with databases and walk through how to migrate from a TypeORM project to a Photon one.
 
-|                          | TypeORM                         | Photon.js                           |
-|--------------------------|---------------------------------|-------------------------------------|
-|classification            |- ORM library                    |- an auto-generated database client  | 
-|supported design patterns |- Active Record, Data Mapper     |- Data Mapper                        |
-|language support          |- JavaScript, TypeScript         |- JavaScript, TypeScript, Go (soon)  |
-|database support          |- MySQL, MariaDB, Postgres,      |- MySQL, Postgres, with more to come |
-|                          |  SQLite, Oracle, sql.js         |                                     |
-|                          |  Microsoft SQL Server           |                                     |
+|                         |TypeORM                     | Photon.js                          |
+|-------------------------|----------------------------|------------------------------------|
+|classification           |- ORM library               |- an auto-generated database client | 
+|supported design patterns|- Active Record, Data Mapper|- Data Mapper                       |
+|language support         |- JavaScript, TypeScript    |- JavaScript, TypeScript, Go (soon) |
+|database support         |- MySQL, MariaDB, Postgres, |- MySQL, Postgres, with more to come|
+|                         |  SQLite, Oracle, sql.js    |                                    |
+|                         |  Microsoft SQL Server      |                                    |
 
 [not sure if a Venn diagram would look nicer]
 
@@ -32,18 +32,18 @@ You will be migrating a REST API built with the [Express](https://expressjs.com/
 
 Follow the [README](https://github.com/infoverload/migration_typeorm_photon/blob/typeorm/README.md) in the `typeorm` [branch](https://github.com/infoverload/migration_typeorm_photon/tree/typeorm) and get the project running against the PostgreSQL database. This sets up your PostgreSQL database and defines the schema as defined in the TypeORM [entities](https://typeorm.io/#/entities). 
 
-Make sure that you have the [Prisma 2 CLI](https://github.com/prisma/prisma2/blob/master/docs/prisma2-cli.md) installed. The Prisma 2 CLI is available as the [`prisma2`](https://www.npmjs.com/package/prisma2) package on npm. You can install it as a global package on your machine with the following command:
+Make sure that you have the [Prisma 2 CLI](https://github.com/prisma/prisma2/blob/master/docs/prisma2-cli.md) installed. The Prisma 2 CLI is available as the [`prisma2`](https://www.npmjs.com/package/prisma2) package on npm. You can install it as a global package on your machine by typing the following command in your terminal:
 
 ```sh
 npm install -g prisma2
 ```
 
-Now you are ready to introspect the database from the TypeORM project.  Type the command:
+Now you are ready to [introspect](https://github.com/prisma/prisma2/blob/master/docs/introspection.md) the database from the TypeORM project.  In your terminal, type the command:
 
 ```sh
 prisma2 init db_introspect
 ```
-This will initialize a new Prisma2 project name "db_introspect" and start the init flow:  
+This will initialize a new Prisma project name "db_introspect" and start the init process:  
 
 1. Under "Languages for starter kits", select `Blank project `.
 2. Under "Supported databases", select `PostgreSQL`.
@@ -56,19 +56,24 @@ This will initialize a new Prisma2 project name "db_introspect" and start the in
 
 The introspection process is now complete.  
 
-- talk about `prisma2 dev` briefly
+In your terminal, type:
 
-Navigate to the project directory  and you will see: 
+```sh
+prisma2 dev
+```
+This launches the [development mode](https://github.com/prisma/prisma2/blob/master/docs/development-mode.md) and creates a [Prisma Studio](https://github.com/prisma/studio) endpoint for you.  Go to the endpoint (i.e. http://localhost:5555 ) and explore the generated Prisma schema. 
+
+Now navigate to the project directory and you will see: 
 
 ```
 prisma
 └── schema.prisma
 ```
 
-The [Prisma schema file](https://github.com/prisma/prisma2/blob/master/docs/prisma-schema-file.md) is the main configuration file for your Prisma setup.  It holds the specifications and credentials for your data source, your data model definitions, and generators.  The migration process to Photon.js will all begin from this file. 
+The [Prisma schema file](https://github.com/prisma/prisma2/blob/master/docs/prisma-schema-file.md) is the main configuration file for your Prisma setup.  It holds the specifications and credentials for your database, your data model definitions, and generators.  The migration process to Photon.js will all begin from this file. 
 
 
-## 2. Defining our data source
+## 2. Defining the data source
 
 In the TypeORM project, the data source and credentials are defined in the [`ormconfig.json`](https://github.com/infoverload/migration_typeorm_photon/blob/typeorm/ormconfig.json) file:
 
@@ -96,14 +101,14 @@ datasource db {
 
 ## 3. Installing and importing the library
 
-TypeORM is installed as a node nodule with `npm install`, whereas Photon.js is generated by the Prisma engine. When you run `prisma2 generate`, this will read the `generator` definition in your Prisma schema:
+TypeORM is installed as a [node nodule](https://www.npmjs.com/package/typeorm) with `npm install`, whereas Photon.js is generated by the Prisma engine. When you run the `prisma2 generate` command, this reads the `generator` definition in your Prisma schema:
 
 ```ts
 generator photon {
   provider = "photonjs"
 }
 ```
-and generate a .js client. A `photon` directory is generated inside `node_modules/@generated`:
+and generate a Photon.js client. A `photon` directory is generated inside `node_modules/@generated`:
 
 ```
 ├── node_modules
@@ -142,6 +147,7 @@ import Photon from '@generated/photon'
 const photon = new Photon()
 ```
 Now you can start using the `photon` instance and start interacting with your data source. 
+
 
 ## 5. Creating data models
 
@@ -230,6 +236,7 @@ model PostCategoriesCategory {
 ```
 
 If you change your datamodel, you can just regenerate your Prisma client and all typings will be updated.
+
 
 ## 6. Working with models
 
