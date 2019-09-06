@@ -15,7 +15,19 @@
 
 > **Note**: If you encounter any problems with this tutorial or any parts of Prisma 2, this is how you can get help: **create an issue on [GitHub](https://github.com/prisma/prisma2/issues)** or join the [`#prisma2-preview`](https://prisma.slack.com/messages/CKQTGR6T0/) channel on [Slack](https://slack.prisma.io/) to share your feedback directly. We also have a community forum on [Spectrum](https://spectrum.chat/prisma).
 
+## Goals
+
+This tutorial will show you how you can achieve the following in your Photon.js project:
+1. [Obtaining the database schema from your Postgres database]((#1.-introspect-the-existing-database-schema-from-the-TypeORM-project))
+2. [Defining the data source](#2.-Defining-the-data-source)
+3. [Installing and importing the library](#3.-Installing-and-importing-the-library)
+4. [Setting up a connection](#4.-Setting-up-a-connection)
+5. [Data modelling](#5.-Creating-data-models)
+6. [Working with models](#6.-Working-with-models)
+7. [Building queries](#7.-Building-queries)
+
 ## Prerequisites
+
 This tutorial assumes that you have some basic familiarity with:
 
 - TypeScript
@@ -28,15 +40,10 @@ Make sure that your database server is [running](https://tableplus.com/blog/2018
 
 You will be migrating a REST API built with the [Express](https://expressjs.com/) framework.  The example project can be found in this [repository](https://github.com/infoverload/migration_typeorm_photon). 
 
-Clone the repository:
+Clone the repository and navigate to it:
 
 ```sh
 git clone https://github.com/infoverload/migration_typeorm_photon
-```
-
-Navigate to the directory:
-
-```sh
 cd migration_typeorm_photon
 ```
 
@@ -45,15 +52,6 @@ The TypeORM version of the project can be found in the [`typeorm`](https://githu
 ```sh
 git checkout typeorm
 ```
-
-This tutorial will show you how you can achieve the following in your Photon.js project:
-1. [Obtaining the database schema from your Postgres database]((#1.-introspect-the-existing-database-schema-from-the-TypeORM-project))
-2. [Defining the data source](#2.-Defining-the-data-source)
-3. [Installing and importing the library](#3.-Installing-and-importing-the-library)
-4. [Setting up a connection](#4.-Setting-up-a-connection)
-5. [Data modelling](#5.-Creating-data-models)
-6. [Working with models](#6.-Working-with-models)
-7. [Building queries](#7.-Building-queries)
 
 The finished Photon.js version of the project is in the [`master`](https://github.com/infoverload/migration_typeorm_photon/tree/master) branch. To switch to this branch, type:
 
@@ -269,8 +267,6 @@ If you change your datamodel, you can regenerate your Prisma client and all typi
 In TypeORM there are several ways to create and save a new model:
 
 if you want to load an existing entity from the database and replace some of its properties you can use the following method:
-
-
 
 ## 7. Querying the database
 - translate db queries in TypeORM to Photon
