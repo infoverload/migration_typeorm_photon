@@ -204,7 +204,9 @@ Now you can start using the `photon` instance and interact with your database.
 
 ## 5. Creating data models
 
-In TypeORM, data models are called "entities".  It is recommended to define one entity class per file. This is why we have a [Category.ts](https://github.com/infoverload/migration_typeorm_photon/blob/typeorm/src/entity/Category.ts) file for the `Category` entity and a [Post.ts](https://github.com/infoverload/migration_typeorm_photon/blob/typeorm/src/entity/Post.ts) file for the `Post` entity.  TypeORM allows you to use your classes as database models and provides a declarative way to define what part of your model will become part of your database table. Entity is a class that maps to a database table. You can create an entity by defining a new class and mark it with `@Entity()`, like this:
+In TypeORM, data models are called "entities".  It is recommended to define one entity class per file. This is why, in the example project, there is a [Category.ts](https://github.com/infoverload/migration_typeorm_photon/blob/typeorm/src/entity/Category.ts) file for the `Category` entity and a [Post.ts](https://github.com/infoverload/migration_typeorm_photon/blob/typeorm/src/entity/Post.ts) file for the `Post` entity.  TypeORM allows you to use your classes as database models and provides a declarative way to define what part of your model will become part of your database table. Entity is a class that maps to a database table. You can create an entity by defining a new class and mark it with `@Entity()`.  Each entity must have at least one primary column (`@PrimaryGeneratedColumn()`). Each entity class property you marked with `@Column` will be mapped to a database table column.  
+
+In our sample TypeORM project:
 
 [Category.ts](https://github.com/infoverload/migration_typeorm_photon/blob/typeorm/src/entity/Category.ts)
 ```ts
@@ -213,6 +215,11 @@ import {Entity} from "typeorm";
 @Entity()
 export class Category {
 
+  @PrimaryGeneratedColumn()
+    id: number;
+
+  @Column()
+  name: string;
 }
 ```
 
@@ -223,10 +230,24 @@ import {Entity} from "typeorm";
 @Entity()
 export class Post {
 
+  @PrimaryGeneratedColumn()
+    id: number;
+
+  @Column()
+  title: string;
+
+  @Column("text")
+  text: string;
+
+  @ManyToMany(type => Category, {
+    cascade: true
+  })
+  @JoinTable()
+    categories: Category[];
 }
 ```
 
-In your Photon.js project, these model definitions are located in the Prisma schema and auto-generated from the introspection process. Models represent the entities of your application domain, define the underlying database schema, and is the foundation for the auto-generated CRUD operations of the database client.
+The data models above will be auto-generated from the introspection process in your Photon.js project. These model definitions are located in the Prisma schema.  Models represent the entities of your application domain, define the underlying database schema, and is the foundation for the auto-generated CRUD operations of the database client.
 
 Take a look at your generated Prisma schema file ([example here](https://github.com/infoverload/migration_typeorm_photon/blob/master/prisma/schema.prisma)).  The `Category` and `Post` entities from the TypeORM project is translated to `Category` and `Post` models:
 
@@ -260,6 +281,8 @@ model PostCategoriesCategory {
 `Category` and `Post` are mapped to database tables. The fields are mapped to columns of the tables. Note that there is a many-to-many relation between `Category` and `Post` via the `PostCategoriesCategory` composite table and the `@id` directive indicates that this field is used as the _primary key_. 
 
 If you change your datamodel, you can regenerate your Prisma client and all typings will be updated.
+
+[Show the underlying SQL query]
 
 
 ## 6. Working with models
