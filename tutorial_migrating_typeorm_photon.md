@@ -176,7 +176,7 @@ and generates a Photon.js client and a `photon` directory inside `node_modules/@
 
 This is the default path but can be [customized](https://github.com/prisma/prisma2/blob/master/docs/photon/codegen-and-node-setup.md). It is best not to change the files in the generated directory because it will get overwritten.
 
-Now you can import Photon.js in your project.  Create an `index.ts` file and import the library like this: 
+Now you can import Photon.js in your project.  Create a main application endpoint, `index.ts`, inside the `src` directory and import the library like this: 
 
 ```ts
 import Photon from '@generated/photon'
@@ -322,7 +322,17 @@ createConnection().then(connection => {
 //if you want to load an existing entity from the database and replace some of its properties you can use the following method:
 
 
-To implement the same route and endpoint in your Photon.js project, go to your `index.ts` file, and in the `/posts` endpoint, fetch all the posts from the database with [`findMany`](https://github.com/prisma/prisma2/blob/master/docs/photon/api.md#findMany), a method exposed for the `Post` model with the generated Photon API.  Then send the results back.  Note that all of these methods are asynchronous and use callbacks so we can `await` the results of the operation.
+Your generated Photon API will expose the following [CRUD operations](https://github.com/prisma/prisma2/blob/master/docs/photon/api.md#crud) for the `Category` and `Post` models:
+- [`findOne`]
+- [`findMany`]
+- [`create`]
+- [`update`]
+- [`updateMany`]
+- [`upsert`]
+- [`delete`]
+- [`deleteMany`]
+
+So to implement the same route and endpoint in your Photon.js project, go to your `index.ts` file, and in the `/posts` endpoint, fetch all the posts from the database with [`findMany`](https://github.com/prisma/prisma2/blob/master/docs/photon/api.md#findMany), a method exposed for the `Post` model with the generated Photon API.  Then send the results back.  Note that all of these methods are asynchronous and use callbacks so we can `await` the results of the operation.
 
 ```ts
 import * as express from 'express'
