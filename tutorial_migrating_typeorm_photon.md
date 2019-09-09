@@ -204,7 +204,7 @@ Now you can start using the `photon` instance and interact with your database.
 
 ## 5. Creating data models
 
-In TypeORM, data models are called "entities".  It is recommended to define one entity class per file. This is why, in the example project, there is a [Category.ts](https://github.com/infoverload/migration_typeorm_photon/blob/typeorm/src/entity/Category.ts) file for the `Category` entity and a [Post.ts](https://github.com/infoverload/migration_typeorm_photon/blob/typeorm/src/entity/Post.ts) file for the `Post` entity.  TypeORM allows you to use your classes as database models and provides a declarative way to define what part of your model will become part of your database table. Entity is a class that maps to a database table. You can create an entity by defining a new class and mark it with `@Entity()`.  Each entity must have at least one primary column (`@PrimaryGeneratedColumn()`). Each entity class property you marked with `@Column` will be mapped to a database table column.  
+In TypeORM, data models are called "entities".  It is recommended to define one entity class per file (as "entity schemas" which you can import later). This is why, in the example project, there is a [Category.ts](https://github.com/infoverload/migration_typeorm_photon/blob/typeorm/src/entity/Category.ts) file for the `Category` entity and a [Post.ts](https://github.com/infoverload/migration_typeorm_photon/blob/typeorm/src/entity/Post.ts) file for the `Post` entity.  TypeORM allows you to use your classes as database models and provides a declarative way to define what part of your model will become part of your database table. Entity is a class that maps to a database table. You can create an entity by defining a new class and mark it with `@Entity()`.  Each entity must have at least one primary column (`@PrimaryGeneratedColumn()`). Each entity class property you marked with `@Column` will be mapped to a database table column.  
 
 In our sample TypeORM project:
 
@@ -287,9 +287,60 @@ If you change your datamodel, you can regenerate your Prisma client and all typi
 
 ## 6. Working with models
 
-In TypeORM there are several ways to create and save a new model:
+In TypeORM there are several ways to work with your data model.  In the sample project, you first get a `Post` repository to perform operations against.  Then, in your application route that fetches all the posts in the database, load all the posts with the `find` method. 
 
-if you want to load an existing entity from the database and replace some of its properties you can use the following method:
+[index.ts](https://github.com/infoverload/migration_typeorm_photon/blob/typeorm/src/index.ts)
+```ts
+import "reflect-metadata";
+import {createConnection} from "typeorm";
+import {Request, Response} from "express";
+import * as express from "express";
+import * as bodyParser from "body-parser";
+import {Post} from "./entity/Post";
+
+// connection settings are in the "ormconfig.json" file
+createConnection().then(connection => {
+
+    const postRepository = connection.getRepository(Post);
+
+    app.get("/posts", async function(req: Request, res: Response) {
+        const posts = await postRepository.find();
+        res.send(posts);
+    });
+
+    // start Express server
+    app.listen(3000);
+    console.log("Express application is up and running on port 3000");
+
+}).catch(error => console.log("Error: ", error));
+```
+
+//if you want to load an existing entity from the database and replace some of its properties you can use the following method:
+
+
+To achieve this in your Photon.js project, go to your `index.ts` file, 
+- refer to stuff from https://github.com/prisma/prisma2/blob/master/docs/photon/api.md#findMany
+
+```ts
+import * as express from 'express'
+import * as bodyParser from 'body-parser'
+import Photon from '@generated/photon'
+
+const app = express()
+app.use(bodyParser.json())
+
+const photon = new Photon()
+
+app.get('/posts', async (req, res) => {
+    const posts = await photon.posts.findMany()
+    res.send(posts)
+})
+
+app.listen(3000, () =>
+  console.log('Server is running on http://localhost:3000'),
+)
+```
+
 
 ## 7. Querying the database
 - translate db queries in TypeORM to Photon
@@ -298,6 +349,8 @@ if you want to load an existing entity from the database and replace some of its
     - Photon does not support it but provides ways to achieve similar goals
 - code examples (from this in TypeORM to this in Photon)
 - example of transaction in TypeORM → translated to nested write in Photon API
+
+https://github.com/prisma/prisma2/blob/transactions/docs/transactions.md
 
 ## 8. Working with relations
 - how does each one handle eager and lazy loading?
