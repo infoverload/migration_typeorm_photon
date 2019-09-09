@@ -22,7 +22,8 @@ This tutorial will show you how to achieve the following in your Photon.js proje
 4. [Setting up a connection](#4-Setting-up-a-connection)
 5. [Modelling data](#5-Creating-data-models)
 6. [Working with models](#6-Working-with-models)
-7. [Building queries](#7-Building-queries)
+7. [Working with relations](#7-Working-with-relations)
+7. [Querying the database](#7-Querying-the-database)
 
 ## Prerequisites
 
@@ -287,7 +288,9 @@ If you change your datamodel, you can regenerate your Prisma client and all typi
 
 ## 6. Working with models
 
-In TypeORM there are several ways to work with your data model.  In the sample project, you first get a `Post` repository to perform operations against.  Then, in your application route that fetches all the posts in the database, load all the posts with the `find` method. 
+With TypeORM there are several ways to work with your data model. In this example, [`Repository`](https://typeorm.io/#/working-with-repository) is used as a collection of all operations for a concrete entity (in this case, `Post`).    
+
+In the sample project, you first access a `Post` repository via the `getRepository` method so that you can perform operations against it.  Then, in your Express application route that fetches all the posts in the database, use the Post Repository's `find()` method to load all the posts and send the response back. 
 
 [index.ts](https://github.com/infoverload/migration_typeorm_photon/blob/typeorm/src/index.ts)
 ```ts
@@ -342,17 +345,10 @@ app.listen(3000, () =>
 ```
 
 
-## 7. Querying the database
-- translate db queries in TypeORM to Photon
-- ACID 
-    - what is it?
-    - Photon does not support it but provides ways to achieve similar goals
-- code examples (from this in TypeORM to this in Photon)
-- example of transaction in TypeORM → translated to nested write in Photon API
+## 7. Working with relations
 
-https://github.com/prisma/prisma2/blob/transactions/docs/transactions.md
+https://typeorm.io/#/relations
 
-## 8. Working with relations
 - how does each one handle eager and lazy loading?
 - TypeORM QueryBuilder vs Photon Filtering API
     - not really similar to ORMs and not comparable
@@ -363,6 +359,21 @@ https://github.com/prisma/prisma2/blob/transactions/docs/transactions.md
 
 eager loading in photon
 - include, select
+
+
+## 8. Querying the database
+- translate db queries in TypeORM to Photon
+
+https://typeorm.io/#/select-query-builder
+
+- ACID 
+    - what is it?
+    - Photon does not support it but provides ways to achieve similar goals
+- code examples (from this in TypeORM to this in Photon)
+- example of transaction in TypeORM → translated to nested write in Photon API
+
+https://github.com/prisma/prisma2/blob/transactions/docs/transactions.md
+
 
 ## Summary
 - what have you achieved?
