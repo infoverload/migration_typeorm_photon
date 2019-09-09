@@ -356,7 +356,6 @@ const getPost = async(call: any, callback: any) => {
   })
   callback(null, { post })
 } -->
-```
 
 
 ## 7. Working with relations
