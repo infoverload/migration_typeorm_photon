@@ -114,6 +114,7 @@ Now in your terminal, type:
 ```sh
 prisma2 dev
 ```
+
 This launches the [development mode](https://github.com/prisma/prisma2/blob/master/docs/development-mode.md) and creates a [Prisma Studio](https://github.com/prisma/studio) endpoint for you.  Go to the endpoint (i.e. http://localhost:5555 ) and explore the generated Prisma schema visually in your browser. 
 
 
@@ -318,14 +319,14 @@ createConnection().then(connection => {
 ```
 
 Your generated Photon API will expose the following [CRUD operations](https://github.com/prisma/prisma2/blob/master/docs/photon/api.md#crud) for the `Category` and `Post` models:
-- [`findOne`]
-- [`findMany`]
-- [`create`]
-- [`update`]
-- [`updateMany`]
-- [`upsert`]
-- [`delete`]
-- [`deleteMany`]
+- `findOne`
+- `findMany`
+- `create`
+- `update`
+- `updateMany`
+- `upsert`
+- `delete`
+- `deleteMany`
 
 So to implement the same route and endpoint in your Photon.js project, go to your `index.ts` file, and in the `/posts` endpoint for the `app.get` route, fetch all the posts from the database with [`findMany`](https://github.com/prisma/prisma2/blob/master/docs/photon/api.md#findMany), a method exposed for the `Post` model with the generated Photon API.  Then send the results back.  Note that the API calls are asynchronous so we can `await` the results of the operation.
 
@@ -366,12 +367,6 @@ app.get("/posts/:id", async function(req: Request, res: Response) {
 ```
 All repository `find` methods accept special options you can use to query data you need.  
 
-The above code will execute the following query:
-
-```sql
-SELECT * FROM "post" WHERE "id"=[id passed in]
-```
-
 So to implement the same route and endpoint in your Photon.js project, go to your `index.ts` file, and in the `/posts/:id` endpoint, save the `id` of the post we want from the request parameter, use the `findOne` method generated for the `post` model to fetch a post identified by a unique value and specify the unique field to be selected with the `where` option.  Then send the results back.  
 
 ```ts
@@ -384,12 +379,6 @@ app.get(`/posts/:id`, async (req, res) => {
     })
     res.json(post)
 })
-```
-
-The above code will execute the following query:
-
-```sql
-
 ```
 
 Let's migrate the route that handles POST requests.  In the TypeORM project, this is the endpoint to create and save a new post:
@@ -449,9 +438,17 @@ After you have implemented the routes in your main application file, it's time t
 
 ### 7.1. Initialize our project and install dependencies
 
-In your project root, initialize a new npm project: `npm init -y`
+In your project root, initialize a new npm project: 
 
-Install the `typescript` and `ts-node` packages locally: `npm install --save-dev typescript ts-node`
+```sh
+npm init -y
+```
+
+Install the `typescript` and `ts-node` packages locally: 
+
+```sh
+npm install --save-dev typescript ts-node
+```
 
 
 ### 7.2. Add TypeScript configuration
@@ -486,7 +483,9 @@ In your [package.json](https://github.com/infoverload/prisma2-grpc/blob/master/p
 
 With everything in place, you can run the project!
 
-- Run the script: `npm start`
+```sh
+npm start
+```
 
 
 ## 8. Other considerations
