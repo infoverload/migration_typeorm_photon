@@ -9,7 +9,6 @@
 |language support         |- JavaScript, TypeScript                                                       |- JavaScript, TypeScript, Go (soon) |
 |database support         |- MySQL, MariaDB, Postgres,<br>SQLite, Oracle, sql.js,<br>Microsoft SQL Server |- MySQL, Postgres, with more to come|
 
-[not sure if a Venn diagram would look nicer]
 
 > **Note**: If you encounter any problems with this tutorial or any parts of Prisma 2, this is how you can get help: **create an issue on [GitHub](https://github.com/prisma/prisma2/issues)** or join the [`#prisma2-preview`](https://prisma.slack.com/messages/CKQTGR6T0/) channel on [Slack](https://slack.prisma.io/) to share your feedback directly. We also have a community forum on [Spectrum](https://spectrum.chat/prisma).
 
@@ -17,14 +16,13 @@
 
 This tutorial will show you how to achieve the following in your Photon.js project:
 1. [Obtaining the database schema from your database](#1-introspect-the-existing-database-schema-from-the-TypeORM-project)
-2. [Defining the data source](#2-Defining-the-data-source)
+2. [Defining the data source](#2-Specifying-the-data-source)
 3. [Installing and importing the library](#3-Installing-and-importing-the-library)
 4. [Setting up a connection](#4-Setting-up-a-connection)
 5. [Modelling data](#5-Creating-data-models)
-6. [Working with models](#6-Working-with-models)
-7. [Working with relations](#7-Working-with-relations)
-8. [Querying the database](#8-Querying-the-database)
-9. [Working with transactions](#9-Working-with-transactions)
+6. [Querying the database](#6-Querying-the-database)
+7. [Setting up your TypeScript project](#7-Setting-up-your-TypeScript-project)
+8. [Other migration considerations](#8-Other-migration-considerations)
 
 ## Prerequisites
 
@@ -284,12 +282,10 @@ model PostCategoriesCategory {
 
 If you change your datamodel, you can regenerate your Prisma client and all typings will be updated.
 
-[Show the underlying SQL query]
 
+## 6. Querying the database
 
-## 6. Working with models
-
-With TypeORM there are several ways to work with your data model. In this example, [`Repository`](https://typeorm.io/#/working-with-repository) is used as a collection of all operations for a concrete entity (in this case, `Post`).    
+With TypeORM there are several ways to work with your data model and query the database. In this example, [`Repository`](https://typeorm.io/#/working-with-repository) is used as a collection of all operations for a concrete entity (in this case, `Post`).    
 
 In the sample project, you first access a `Post` repository via the `getRepository` method so that you can perform operations against it.  Then, in your Express application route for the `/posts` endpoint, use the Post Repository's `find()` method to fetch all the posts from the database and send the result back. 
 
@@ -319,9 +315,6 @@ createConnection().then(connection => {
 }).catch(error => console.log("Error: ", error));
 ```
 
-//if you want to load an existing entity from the database and replace some of its properties you can use the following method:
-
-
 Your generated Photon API will expose the following [CRUD operations](https://github.com/prisma/prisma2/blob/master/docs/photon/api.md#crud) for the `Category` and `Post` models:
 - [`findOne`]
 - [`findMany`]
@@ -332,7 +325,7 @@ Your generated Photon API will expose the following [CRUD operations](https://gi
 - [`delete`]
 - [`deleteMany`]
 
-So to implement the same route and endpoint in your Photon.js project, go to your `index.ts` file, and in the `/posts` endpoint, fetch all the posts from the database with [`findMany`](https://github.com/prisma/prisma2/blob/master/docs/photon/api.md#findMany), a method exposed for the `Post` model with the generated Photon API.  Then send the results back.  Note that all of these methods are asynchronous and use callbacks so we can `await` the results of the operation.
+So to implement the same route and endpoint in your Photon.js project, go to your `index.ts` file, and in the `/posts` endpoint for the `app.get` route, fetch all the posts from the database with [`findMany`](https://github.com/prisma/prisma2/blob/master/docs/photon/api.md#findMany), a method exposed for the `Post` model with the generated Photon API.  Then send the results back.  Note that all of these methods are asynchronous and use callbacks so we can `await` the results of the operation.
 
 ```ts
 import * as express from 'express'
@@ -354,56 +347,154 @@ app.listen(3000, () =>
 )
 ```
 
-<!-- Now let's implement the next route, which gets passed a call object and has the `id` parameter as a property, and a callback to which we can pass our returned post, filtered by the `id`, from Photon's `findOne` method for the `Post` model, with a null first parameter to indicate that there is no error:
+Let's migrate another route. In the TypeORM project, this is the endpoint to retrieve a post by it's ID:
 
 ```ts
-const getPost = async(call: any, callback: any) => {
-  const { id } = call.request
-  const post = await photon.posts.findOne({
-    where: {
-      id,
+app.get("/posts/:id", async function(req: Request, res: Response) {
+
+    const post = await postRepository.findOne(req.params.id);
+
+    if (!post) {
+        res.status(404);
+        res.end();
+        return;
+    }
+    return res.send(post);
+});
+```
+All repository `find` methods accept special options you can use to query data you need.  
+
+The above code will execute the following query:
+
+```sql
+SELECT * FROM "post" WHERE "id"=[id passed in]
+```
+
+So to implement the same route and endpoint in your Photon.js project, go to your `index.ts` file, and in the `/posts/:id` endpoint, save the `id` of the post we want from the request parameter, use the `findOne` method generated for the `post` model to fetch a post identified by a unique value and specify the unique field to be selected with the `where` option.  Then send the results back.  
+
+```ts
+app.get(`/posts/:id`, async (req, res) => {
+    const { id } = req.params
+    const post = await photon.posts.findOne({ 
+        where: { 
+          id: Number(id),
+        },
+    })
+    res.json(post)
+})
+```
+
+The above code will execute the following query:
+
+```sql
+
+```
+
+Let's migrate the route that handles POST requests.  In the TypeORM project, this is the endpoint to create and save a new post:
+
+```ts
+app.post("/posts", async function(req: Request, res: Response) {
+    const newPost = await postRepository.create(req.body);
+    await postRepository.save(newPost);
+    return res.send(newPost);
+});
+```
+
+To implement the same route and endpoint in your Photon.js project, go to your `index.ts` file, and in the `/posts` endpoint for the `app.post` route, save the user input from the request body, use the `create` method generated for the `post` model to create a new record with the requested data, and return the newly created object.  
+
+```ts
+app.post(`/posts`, async (req, res) => {
+  const { text, title } = req.body
+  const post = await photon.posts.create({
+    data: {
+        text,
+        title,
     },
   })
-  callback(null, { post })
-} -->
+  res.json(post)
+})
+```
+
+Let's migrate one last route.  In the TypeORM project, this is the endpoint to delete a post by it's id: 
+
+```ts
+app.delete("/posts/:id", async function(req: Request, res: Response) {
+    const result = await postRepository.delete(req.params.id);
+    return res.send(result);
+});
+```
+
+To implement the same route and endpoint in your Photon.js project, go to your `index.ts` file, and in the `/posts/:id` endpoint for the `app.delete` route, save the `id` of the post we want to delete from the request body, use the `delete` method generated for the `post` model to delete an existing record `where` the `id` matches the requested input, and return the corresponding object.  
+
+```ts
+app.delete(`/posts/:id`, async (req, res) => {
+  const { id } = req.params
+  const post = await photon.posts.delete({ 
+    where: { 
+        id: Number(id),
+    },
+  })
+  res.json(post)
+})
+```
+
+Now you can migrate the other routes following this pattern.  If you get stuck, refer back to the `master` branch of the project. 
 
 
-## 7. Working with relations
-
-https://typeorm.io/#/relations
-
-- how does each one handle eager and lazy loading?
-- TypeORM QueryBuilder vs Photon Filtering API
-    - not really similar to ORMs and not comparable
-- emphasize auto-generated db client!!
-- abstraction that photon provides is even higher than query builder
-- querybuilder is a thin abstraction and you still need to understand sql inorder to apply it
-- photonjs abstracts sql so much you don't need to know it to be productive
-
-eager loading in photon
-- include, select
+## 7. Setting up your TypeScript project
 
 
-## 8. Querying the database
-- translate db queries in TypeORM to Photon
+### 7.1. Initialize our project and install dependencies
 
-https://typeorm.io/#/select-query-builder
+Let's set up a basic TypeScript app with `npm`.
 
-- ACID 
-    - what is it?
-    - Photon does not support it but provides ways to achieve similar goals
-- code examples (from this in TypeORM to this in Photon)
-- example of transaction in TypeORM → translated to nested write in Photon API
+Initialize a new npm project: `npm init -y`
 
-https://github.com/prisma/prisma2/blob/transactions/docs/transactions.md
+Install typescript and ts-node locally: `npm install --save-dev typescript ts-node`
 
 
-## 9. Working with transactions
+### 7.2. Add TypeScript configuration
 
-- https://typeorm.io/#/transactions
-- https://github.com/prisma/prisma2/blob/transactions/docs/transactions.md
+Create [tsconfig.json](https://github.com/infoverload/prisma2-grpc/blob/master/tsconfig.json) in our project root and add:
 
-## Summary
-- what have you achieved?
-- where can you look for further resources?
-- links
+```json
+{
+  "compilerOptions": {
+    "sourceMap": true,
+    "outDir": "dist",
+    "lib": ["esnext", "dom"],
+    "strict": true
+  }
+}
+```
+
+### 7.3. Add a start script to `package.json`
+
+In our [package.json](https://github.com/infoverload/prisma2-grpc/blob/master/package.json), let's add some scripts :
+
+```json
+"scripts": {
+  "seed": "ts-node prisma/seed.ts",
+  "server": "ts-node server.ts",
+  "client": "ts-node client.ts"
+}
+```
+### 7.4 Run the project
+
+With everything in place, you can run the project!
+
+- Run the script: `npm start`
+
+
+## 8. Other considerations
+
+The sample project that was used demonstrated the fundamental capabilities of both TypeORM and Photon.js but there are more things to consider when migrating, such as transactions and query building, which may be covered in a more advanced tutorial.  The main thing to note is that while Photon.js is comparable to an ORM, it should rather be considered as an auto-generated database client.  The abstraction that Photon.js provides is higher than a query builder, which allows you to be productive and efficient when working with databases without the need to understand SQL.   
+
+
+## Next steps
+
+- Learn more about [Photon's relation API](https://github.com/prisma/prisma2/blob/master/docs/photon/api.md#relations)
+- Engage with our [community](https://www.prisma.io/community/)!
+- Prisma 2 is not production-ready [yet](https://github.com/prisma/prisma2/blob/master/docs/limitations.md), so we value your [feedback](https://github.com/prisma/prisma2/blob/master/docs/prisma2-feedback.md)!
+
+If you run into problems with this tutorial or spot any mistakes, feel free to make a pull request. 
