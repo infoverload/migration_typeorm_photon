@@ -561,7 +561,7 @@ npm start
 
 ## 8. Other considerations
 
-The sample project that was used demonstrated the fundamental capabilities of both TypeORM and Photon.js but there are more things to consider when migrating, such as transactions and query building, which may be covered in a more advanced tutorial.  The main thing to note is that while Photon.js is comparable to an ORM, it should rather be considered as an auto-generated database client.  The abstraction that Photon.js provides is higher than a query builder, which allows you to be productive and efficient when working with databases without the need to understand SQL.   
+The sample project that was used demonstrated the fundamental capabilities of both TypeORM and Photon.js but there are more things to consider when migrating, such as transactions and working with relations, which may be covered in a future tutorial.  The main thing to note is that while Photon.js is comparable to an ORM, it should rather be considered as an auto-generated database client.    
 
 
 ## Next steps
