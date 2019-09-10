@@ -4,9 +4,9 @@
 
 |                         |TypeORM                                                                      | Photon.js                                |
 |-------------------------|-----------------------------------------------------------------------------|------------------------------------------|
-|CLASSIFICATION           |ORM library                                                                  |an auto-generated database client         | 
-|LANGUAGE SUPPORT         |JavaScript, TypeScript                                                       |JavaScript, TypeScript, Go (soon)         |
-|DATABASE SUPPORT         |MySQL, MariaDB, Postgres,<br>SQLite, Oracle, sql.js,<br>Microsoft SQL Server |MySQL, Postgres, SQLite, with more to come|
+|**CLassification**       |ORM library                                                                  |an auto-generated database client         | 
+|**Language Support**     |JavaScript, TypeScript                                                       |JavaScript, TypeScript, Go (soon)         |
+|**Database Support**     |MySQL, MariaDB, Postgres,<br>SQLite, Oracle, sql.js,<br>Microsoft SQL Server |MySQL, Postgres, SQLite, with more to come|
 
 For more details about Prisma's current database support, go [here](https://github.com/prisma/prisma2/blob/master/docs/supported-databases.md).
 
@@ -74,16 +74,17 @@ Now you are ready to [introspect](https://github.com/prisma/prisma2/blob/master/
 ```sh
 prisma2 init photonjs_app
 ```
+
 This will initialize a new Prisma project name "photonjs_app" and start the init process:  
 
-1. Under "Languages for starter kits", select **Blank project**.
-2. Under "Supported databases", select **PostgreSQL**.
-3. Under "PostgreSQL database credentials", fill in your database credentials and **Connect**.
-4. Under "Database options", select **Use existing PostgreSQL schema**.
-5. Under "Non-empty schemas", select the schema that you want to introspect.  For PostgreSQL, the default schema is named **public**. 
-6. Under "Prisma 2 tools", keep the default selections and hit **Confirm**. 
-7. Under "Photon is available in these languages", select **TypeScript**.
-8. You can then choose to work with a **Demo script** or **Just the Prisma schema**.  Choose the latter.  
+1. "Languages for starter kits": **Blank project**
+2. "Supported databases": **PostgreSQL**
+3. "PostgreSQL database credentials": fill in your database credentials and select **Connect**
+4. "Database options": **Use existing PostgreSQL schema**
+5. "Non-empty schemas": **public** 
+6. "Prisma 2 tools": confirm the default selections 
+7. "Photon is available in these languages": **TypeScript**
+8. **Just the Prisma schema**
 
 The introspection process is now complete.  You should see a message like:
 ```
@@ -99,13 +100,15 @@ prisma
 
 The [Prisma schema file](https://github.com/prisma/prisma2/blob/master/docs/prisma-schema-file.md) is the main configuration file for your Prisma setup.  It holds the specifications and credentials for your database, your data model definitions, and generators.  The migration process to Photon.js will all begin from this file. 
 
-When introspecting a database, Prisma currently only recognizes many-to-many relations that follow the Prisma conventions for relation tables.  So when you introspected the existing database schema from the TypeORM project, you may encounter a bug specifying "Model PostCategoriesCategory does not have an id field" if you type `prisma2 dev`.  
+When introspecting a database with many-to-many relations, Prisma follows its own conventions for relation tables.  So when you introspected the existing database schema from the TypeORM project, you may encounter a bug specifying "Model PostCategoriesCategory does not have an id field" if you type `prisma2 dev`.  
 
 This is a known [limitation](https://github.com/prisma/prisma2/blob/master/docs/limitations.md). A workaround is to add a primary key id in the `PostCategoriesCategory` model manually in the [schema.prisma](https://github.com/infoverload/migration_typeorm_photon/blob/master/prisma/schema.prisma#L28) file like this:
 
 ```ts
+. . .
 model PostCategoriesCategory {
   id         Int           @id
+  . . .
 }
 ```
 
@@ -133,15 +136,18 @@ In the TypeORM project example, the data source and credentials can be defined i
   "database": "database",
   "synchronize": true,
   "logging": true
+  . . .
 }
 ```
 In your Photon.js project, this was automatically generated when you ran through the `prisma2 init` process and located in your [`schema.prisma`](https://github.com/infoverload/migration_typeorm_photon/blob/master/prisma/schema.prisma) file:
 
 ```json
+. . .
 datasource db {
   provider = "postgresql"
   url      = "postgresql://user:password@localhost:5432/database?schema=public"
 }
+. . .
 ```
 
 ## 3. Installing and importing the library
@@ -161,6 +167,7 @@ This parses the Prisma schema file to generate the right data source client code
 generator photon {
   provider = "photonjs"
 }
+. . .
 ```
 and generates a Photon.js client and a `photon` directory inside `node_modules/@generated`:
 
@@ -187,9 +194,9 @@ In TypeORM, there are several ways to create a connection. The most simple and c
 
 [index.ts](https://github.com/infoverload/migration_typeorm_photon/blob/typeorm/src/index.ts)
 ```ts
-import {createConnection} from "typeorm";
+import createConnection from "typeorm"
 
-const connection: Connection = createConnection();
+const connection = createConnection()
 
 ```
 
@@ -213,7 +220,7 @@ In our sample TypeORM project:
 
 [Category.ts](https://github.com/infoverload/migration_typeorm_photon/blob/typeorm/src/entity/Category.ts)
 ```ts
-import {Entity} from "typeorm";
+import {Entity} from "typeorm"
 
 @Entity()
 export class Category {
@@ -228,7 +235,7 @@ export class Category {
 
 [Post.ts](https://github.com/infoverload/migration_typeorm_photon/blob/typeorm/src/entity/Post.ts)
 ```ts
-import {Entity} from "typeorm";
+import {Entity} from "typeorm"
 
 @Entity()
 export class Post {
@@ -294,26 +301,28 @@ In the sample project, you first access a `Post` repository via the `getReposito
 
 [index.ts](https://github.com/infoverload/migration_typeorm_photon/blob/typeorm/src/index.ts)
 ```ts
-import "reflect-metadata";
-import {createConnection} from "typeorm";
-import {Request, Response} from "express";
-import * as express from "express";
-import * as bodyParser from "body-parser";
-import {Post} from "./entity/Post";
+import "reflect-metadata"
+import {createConnection} from "typeorm"
+import {Request, Response} from "express"
+import * as express from "express"
+import * as bodyParser from "body-parser"
+import {Post} from "./entity/Post"
 
 // connection settings are in the "ormconfig.json" file
 createConnection().then(connection => {
 
-    const postRepository = connection.getRepository(Post);
+    const postRepository = connection.getRepository(Post)
 
     app.get("/posts", async function(req: Request, res: Response) {
-        const posts = await postRepository.find();
-        res.send(posts);
+        const posts = await postRepository.find()
+        res.send(posts)
     });
 
+    . . .
+
     // start Express server
-    app.listen(3000);
-    console.log("Express application is up and running on port 3000");
+    app.listen(3000)
+    console.log("Express application is up and running on port 3000")
 
 }).catch(error => console.log("Error: ", error));
 ```
@@ -345,6 +354,8 @@ app.get('/posts', async (req, res) => {
     res.send(posts)
 })
 
+. . .
+
 app.listen(3000, () =>
   console.log('Server is running on http://localhost:3000'),
 )
@@ -353,23 +364,26 @@ app.listen(3000, () =>
 Let's migrate another route. In the TypeORM project, this is the endpoint to retrieve a post by it's ID:
 
 ```ts
+. . .
 app.get("/posts/:id", async function(req: Request, res: Response) {
 
-    const post = await postRepository.findOne(req.params.id);
+    const post = await postRepository.findOne(req.params.id)
 
     if (!post) {
-        res.status(404);
-        res.end();
-        return;
+        res.status(404)
+        res.end()
+        return
     }
-    return res.send(post);
-});
+    return res.send(post)
+})
+. . .
 ```
 All repository `find` methods accept special options you can use to query data you need.  
 
 So to implement the same route and endpoint in your Photon.js project, go to your `index.ts` file, and in the `/posts/:id` endpoint, save the `id` of the post we want from the request parameter, use the `findOne` method generated for the `post` model to fetch a post identified by a unique value and specify the unique field to be selected with the `where` option.  Then send the results back.  
 
 ```ts
+. . .
 app.get(`/posts/:id`, async (req, res) => {
     const { id } = req.params
     const post = await photon.posts.findOne({ 
@@ -379,21 +393,25 @@ app.get(`/posts/:id`, async (req, res) => {
     })
     res.json(post)
 })
+. . .
 ```
 
 Let's migrate the route that handles POST requests.  In the TypeORM project, this is the endpoint to create and save a new post:
 
 ```ts
+. . .
 app.post("/posts", async function(req: Request, res: Response) {
-    const newPost = await postRepository.create(req.body);
-    await postRepository.save(newPost);
-    return res.send(newPost);
-});
+    const newPost = await postRepository.create(req.body)
+    await postRepository.save(newPost)
+    return res.send(newPost)
+})
+. . .
 ```
 
 To implement the same route and endpoint in your Photon.js project, go to your `index.ts` file, and in the `/posts` endpoint for the `app.post` route, save the user input from the request body, use the `create` method generated for the `post` model to create a new record with the requested data, and return the newly created object.  
 
 ```ts
+. . .
 app.post(`/posts`, async (req, res) => {
   const { text, title } = req.body
   const post = await photon.posts.create({
@@ -404,20 +422,24 @@ app.post(`/posts`, async (req, res) => {
   })
   res.json(post)
 })
+. . .
 ```
 
 Let's migrate one last route.  In the TypeORM project, this is the endpoint to delete a post by it's id: 
 
 ```ts
+. . .
 app.delete("/posts/:id", async function(req: Request, res: Response) {
-    const result = await postRepository.delete(req.params.id);
-    return res.send(result);
-});
+    const result = await postRepository.delete(req.params.id)
+    return res.send(result)
+})
+. . .
 ```
 
 To implement the same route and endpoint in your Photon.js project, go to your `index.ts` file, and in the `/posts/:id` endpoint for the `app.delete` route, save the `id` of the post we want to delete from the request body, use the `delete` method generated for the `post` model to delete an existing record `where` the `id` matches the requested input, and return the corresponding object.  
 
 ```ts
+. . .
 app.delete(`/posts/:id`, async (req, res) => {
   const { id } = req.params
   const post = await photon.posts.delete({ 
@@ -427,6 +449,7 @@ app.delete(`/posts/:id`, async (req, res) => {
   })
   res.json(post)
 })
+. . .
 ```
 
 Now you can migrate the other routes following this pattern.  If you get stuck, refer back to the `master` branch of the project. 
@@ -474,9 +497,12 @@ Create a [tsconfig.json](https://github.com/infoverload/prisma2-grpc/blob/master
 In your [package.json](https://github.com/infoverload/prisma2-grpc/blob/master/package.json) file, add some scripts:
 
 ```json
+. . .
 "scripts": {
   "start": "ts-node src/index.ts"
+  . . .
 }
+. . .
 ```
 
 ### 7.4 Run the project
