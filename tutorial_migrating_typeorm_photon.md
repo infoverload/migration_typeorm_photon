@@ -2,14 +2,6 @@
 
 [TypeORM](https://typeorm.io/) and [Photon.js](https://photonjs.prisma.io/) both act as abstraction layers between your application and your database, but each works differently under the hood and provides different types of abstractions. While migrating an ORM to Photon.js may be an investment, the Prisma engine allows you to write more explicit, clear, and performant code in the long run.  In this tutorial, we will compare both approaches for working with databases and walk through how to migrate from a TypeORM project to a Photon.js one.
 
-|                         |TypeORM                                                                      | Photon.js                                |
-|-------------------------|-----------------------------------------------------------------------------|------------------------------------------|
-|**CLassification**       |ORM library                                                                  |an auto-generated database client         | 
-|**Language Support**     |JavaScript, TypeScript                                                       |JavaScript, TypeScript, Go (soon)         |
-|**Database Support**     |MySQL, MariaDB, Postgres,<br>SQLite, Oracle, sql.js,<br>Microsoft SQL Server |MySQL, Postgres, SQLite, with more to come|
-
-For more details about Prisma's current database support, go [here](https://github.com/prisma/prisma2/blob/master/docs/supported-databases.md).
-
 > **Note**: If you encounter any problems with this tutorial or any parts of Prisma 2, this is how you can get help: **create an issue on [GitHub](https://github.com/prisma/prisma2/issues)** or join the [`#prisma2-preview`](https://prisma.slack.com/messages/CKQTGR6T0/) channel on [Slack](https://slack.prisma.io/) to share your feedback directly. We also have a community forum on [Spectrum](https://spectrum.chat/prisma).
 
 ## Goals
@@ -69,7 +61,9 @@ Make sure that you have the [Prisma 2 CLI](https://github.com/prisma/prisma2/blo
 npm install -g prisma2
 ```
 
-Now you are ready to [introspect](https://github.com/prisma/prisma2/blob/master/docs/introspection.md) the database from the TypeORM project.  Navigate outside of the current project directory so you can start a new project. In your terminal, type the command:
+Prisma lets you [introspect](https://github.com/prisma/prisma2/blob/master/docs/introspection.md) your database to derive a data model definition from the current database schema. This feature is typically used in [Photon-only](https://github.com/prisma/prisma2/blob/master/docs/photon/use-only-photon.md) projects where database migrations are not performed via [Lift](https://lift.prisma.io), so the data model needs to be updated manually after each database schema change.
+
+Now you are ready to introspect the database from the TypeORM project.  Navigate outside of the current project directory so you can start a new project. In your terminal, type the command:
 
 ```sh
 prisma2 init photonjs_app
@@ -98,13 +92,53 @@ prisma
 └── schema.prisma
 ```
 
-The [Prisma schema file](https://github.com/prisma/prisma2/blob/master/docs/prisma-schema-file.md) is the main configuration file for your Prisma setup.  It holds the specifications and credentials for your database, your data model definitions, and generators.  The migration process to Photon.js will all begin from this file. 
+The [Prisma schema file](https://github.com/prisma/prisma2/blob/master/docs/prisma-schema-file.md) is the main configuration file for your Prisma setup.  It holds the specifications and credentials for your database, your data model definition, and generators.  The migration process to Photon.js will all begin from this file. 
+
+<Details>
+<Summary>Have a look at the file that was generated.</Summary>
+
+```groovy
+generator photon {
+  provider = "photonjs"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = "postgresql://user:password@127.0.0.1:5432/database?schema=public"
+}
+
+model Category {
+  id                     Int                      @id
+  name                   String
+  postCategoriesCategory PostCategoriesCategory[]
+
+  @@map("category")
+}
+
+model Post {
+  id                     Int                      @id
+  postCategoriesCategory PostCategoriesCategory[]
+  text                   String
+  title                  String
+
+  @@map("post")
+}
+
+model PostCategoriesCategory {
+  id         Int           @id
+  categoryId Category
+  postId     Post
+
+  @@map("post_categories_category")
+}
+```
+</Details>
 
 When introspecting a database with many-to-many relations, Prisma follows its own conventions for relation tables.  So when you introspected the existing database schema from the TypeORM project, you may encounter a bug specifying "Model PostCategoriesCategory does not have an id field" if you type `prisma2 dev`.  
 
-This is a known [limitation](https://github.com/prisma/prisma2/blob/master/docs/limitations.md). A workaround is to add a primary key id in the `PostCategoriesCategory` model manually in the [schema.prisma](https://github.com/infoverload/migration_typeorm_photon/blob/master/prisma/schema.prisma#L28) file like this:
+This is a known [limitation](https://github.com/prisma/prisma2/blob/master/docs/limitations.md). A workaround is to add a primary key `id` field in the `PostCategoriesCategory` model manually in the [schema.prisma](https://github.com/infoverload/migration_typeorm_photon/blob/master/prisma/schema.prisma#L28) file like this:
 
-```ts
+```groovy
 . . .
 model PostCategoriesCategory {
   id         Int           @id
@@ -125,7 +159,7 @@ This launches the [development mode](https://github.com/prisma/prisma2/blob/mast
 
 In the TypeORM project example, the data source and credentials can be defined in the [`ormconfig.json`](https://github.com/infoverload/migration_typeorm_photon/blob/typeorm/ormconfig.json) file:
 
-```ts
+```json
 {
   "name": "default",
   "type": "postgres",
@@ -141,7 +175,7 @@ In the TypeORM project example, the data source and credentials can be defined i
 ```
 In your Photon.js project, this was automatically generated when you ran through the `prisma2 init` process and located in your [`schema.prisma`](https://github.com/infoverload/migration_typeorm_photon/blob/master/prisma/schema.prisma) file:
 
-```json
+```groovy
 . . .
 datasource db {
   provider = "postgresql"
@@ -166,7 +200,7 @@ prisma2 generate
 This parses the Prisma schema file to generate the right data source client code (from reading the `generator` definition): 
 
 [schema.prisma](https://github.com/infoverload/migration_typeorm_photon/blob/master/prisma/schema.prisma)
-```ts
+```groovy
 generator photon {
   provider = "photonjs"
 }
@@ -175,17 +209,17 @@ generator photon {
 and generates a Photon.js client and a `photon` directory inside `node_modules/@generated`:
 
 ```
-├── node_modules
-│   └── @generated
-│       └── photon
-│           └── runtime
-│               ├── index.d.ts
-│               └── index.js
+node_modules
+└── @generated
+    └── photon
+        └── runtime
+            ├── index.d.ts
+            └── index.js
 ```
 
 This is the default path but can be [customized](https://github.com/prisma/prisma2/blob/master/docs/photon/codegen-and-node-setup.md). It is best not to change the files in the generated directory because it will get overwritten every time `prisma2 generate` is invoked.
 
-Now you can import Photon.js in your project.  Create a main application endpoint, `index.ts`, inside the `src` directory and import the library like this: 
+Now you can import Photon.js in your project.  Create a main application file, `index.ts`, inside the `src` directory and import the `Photon` constructor: 
 
 ```ts
 import Photon from '@generated/photon'
@@ -213,12 +247,12 @@ const photon = new Photon()
 ```
 Now you can start using the `photon` instance and interact with your database programmatically with the generated Photon API.
 
-> **Note**: Unless you want to employ a specific optimization, calling `photon.connect()` is not necessary thanks to the _lazy connect_ behaviour: The `Photon` instance connects lazily when the first request is made to the API (`connect()` is called for you under the hood). If you need the first request to respond instantly and can't wait for the lazy connection to be established, you can explicitly call `photon.connect()` to establish a connection to the data source.
+The `Photon` instance connects [lazily](https://github.com/prisma/prisma2/blob/master/docs/photon/api.md#managing-connections) when the first request is made to the API (`connect()` is called for you under the hood). 
 
 
 ## 5. Creating models
 
-In TypeORM, models are called _entities_.  It is recommended to define one entity class per file (as "entity schemas" which you can import later). This is why, in the example project, there is a [Category.ts](https://github.com/infoverload/migration_typeorm_photon/blob/typeorm/src/entity/Category.ts) file for the `Category` entity and a [Post.ts](https://github.com/infoverload/migration_typeorm_photon/blob/typeorm/src/entity/Post.ts) file for the `Post` entity.  TypeORM allows you to use your classes as database models and provides a declarative way to define what part of your model will become part of your database table. Entity is a class that maps to a database table. You can create an entity by defining a new class and mark it with `@Entity()`.  Each entity must have at least one primary column (`@PrimaryGeneratedColumn()`). Each entity class property you marked with `@Column` will be mapped to a database table column.  
+In TypeORM, models are called _entities_.  It is recommended to define one entity class per file (as "entity schemas" which you can import later). This is why, in the example project, there is a [Category.ts](https://github.com/infoverload/migration_typeorm_photon/blob/typeorm/src/entity/Category.ts) file for the `Category` entity and a [Post.ts](https://github.com/infoverload/migration_typeorm_photon/blob/typeorm/src/entity/Post.ts) file for the `Post` entity.  TypeORM allows you to use your classes as database models and provides a declarative way to define what part of your model will become part of your database table. `Entity` is a class that maps to a database table. You can create an entity by defining a new class and mark it with `@Entity()`.  Each entity must have at least one primary column (`@PrimaryGeneratedColumn()`). Each entity class property you marked with `@Column` will be mapped to a database table column.  
 
 In our sample TypeORM project:
 
@@ -230,7 +264,7 @@ import {Entity} from "typeorm"
 export class Category {
 
   @PrimaryGeneratedColumn()
-    id: number;
+  id: number;
 
   @Column()
   name: string;
@@ -245,7 +279,7 @@ import {Entity} from "typeorm"
 export class Post {
 
   @PrimaryGeneratedColumn()
-    id: number;
+  id: number;
 
   @Column()
   title: string;
@@ -261,11 +295,11 @@ export class Post {
 }
 ```
 
-The data models above were auto-generated from the introspection process in your Photon.js project. These model definitions are located in the Prisma schema.  Models represent the entities of your application domain, define the underlying database schema, and are the foundation for the auto-generated CRUD operations of the database client.
+In your Photon.js project, the models above were auto-generated from the introspection process. These model definitions are located in the Prisma schema.  Models represent the entities of your application domain, define the underlying database schema, and are the foundation for the auto-generated CRUD operations of the database client.
 
 Take a look at your generated Prisma schema file ([example here](https://github.com/infoverload/migration_typeorm_photon/blob/master/prisma/schema.prisma)).  The `Category` and `Post` entities from the TypeORM project are translated to `Category` and `Post` models:
 
-```ts
+```groovy
 model Category {
   id                     Int                      @id
   name                   String
@@ -294,14 +328,14 @@ model PostCategoriesCategory {
 
 `Category` and `Post` are mapped to database tables. The fields are mapped to columns of the tables. Note that there is a many-to-many relation between `Category` and `Post` via the `PostCategoriesCategory` relation table and the `@id` directive indicates that this field is used as the _primary key_. 
 
-If you change your datamodel, you can regenerate your Prisma client and all typings will be updated.
+If you change your datamodel, you can regenerate Photon.js and all typings will be updated.
 
 
 ## 6. Querying the database
 
-With TypeORM there are several ways to interact with your data model and query the database. In this example, [`Repository`](https://typeorm.io/#/working-with-repository) is used as a collection of all operations for a concrete entity (in this case, `Post`).    
+With TypeORM there are several ways to query the database. In this example, [`Repository`](https://typeorm.io/#/working-with-repository) is used as a collection of all operations for a concrete entity (in this case, `Post`).    
 
-In the sample project, you first access a `Post` repository via the `getRepository` method so that you can perform operations against it.  Then, in your Express application route for the `/posts` endpoint, use the Post Repository's `find()` method to fetch all the posts from the database and send the result back. 
+In the sample project, you first access a `Post` repository via the `getRepository` method so that you can perform operations against it.  Then, in your Express application route for the `/posts` endpoint, use the `Post` repository's `find()` method to fetch all the posts from the database and send the result back. 
 
 [index.ts](https://github.com/infoverload/migration_typeorm_photon/blob/typeorm/src/index.ts)
 ```ts
@@ -321,7 +355,6 @@ createConnection().then(connection => {
         const posts = await postRepository.find()
         res.send(posts)
     });
-
     . . .
 
     // start Express server
@@ -511,7 +544,6 @@ In your [package.json](https://github.com/infoverload/prisma2-grpc/blob/master/p
 . . .
 "scripts": {
   "start": "ts-node src/index.ts"
-  . . .
 }
 . . .
 ```
