@@ -5,7 +5,7 @@ import Photon from '@generated/photon'
 const app = express()
 app.use(bodyParser.json())
 
-const photon = new Photon({ debug: true })
+const photon = new Photon()
 
 app.get('/posts', async (req, res) => {
     const posts = await photon.posts.findMany()
