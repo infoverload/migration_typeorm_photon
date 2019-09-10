@@ -15,7 +15,7 @@ For more details about Prisma's current database support, go [here](https://gith
 ## Goals
 
 This tutorial will show you how to achieve the following in your migration process:
-1. [Obtaining the Prisma schema from your database](#1-Introspect-the-existing-database-schema-from-the-TypeORM-project)
+1. [Obtaining the Prisma schema from your database](#1-Introspecting-the-existing-database-schema-from-the-TypeORM-project)
 2. [Defining the data source](#2-Specifying-the-data-source)
 3. [Installing and importing the library](#3-Installing-and-importing-the-library)
 4. [Setting up a connection](#4-Setting-up-a-connection)
