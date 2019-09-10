@@ -171,7 +171,7 @@ In the TypeORM project example, the data source and credentials can be defined i
   "database": "database",
   "synchronize": true,
   "logging": true
-  //...
+  
 }
 ```
 In your Photon.js project, this was automatically generated when you ran through the `prisma2 init` process and located in your [`schema.prisma`](https://github.com/infoverload/migration_typeorm_photon/blob/master/prisma/schema.prisma) file:
