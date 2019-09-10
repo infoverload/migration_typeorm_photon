@@ -443,42 +443,43 @@ Now you can migrate the other routes following this pattern.  If you get stuck, 
 
 ## 7. Setting up your TypeScript project
 
+After you have implemented the routes in your main application file, it's time to set up your TypeScript project. 
 
 ### 7.1. Initialize our project and install dependencies
 
-Let's set up a basic TypeScript app with `npm`.
+In your project root, initialize a new npm project: `npm init -y`
 
-Initialize a new npm project: `npm init -y`
-
-Install typescript and ts-node locally: `npm install --save-dev typescript ts-node`
+Install the `typescript` and `ts-node` packages locally: `npm install --save-dev typescript ts-node`
 
 
 ### 7.2. Add TypeScript configuration
 
-Create [tsconfig.json](https://github.com/infoverload/prisma2-grpc/blob/master/tsconfig.json) in our project root and add:
+Create a [tsconfig.json](https://github.com/infoverload/prisma2-grpc/blob/master/tsconfig.json) file in your project root and add:
 
 ```json
 {
   "compilerOptions": {
     "sourceMap": true,
     "outDir": "dist",
-    "lib": ["esnext", "dom"],
-    "strict": true
+    "strictFunctionTypes": true,
+    "noImplicitAny": true,
+    "noImplicitThis": true,
+    "alwaysStrict": true,
+    "lib": ["esnext", "dom"]
   }
 }
 ```
 
 ### 7.3. Add a start script to `package.json`
 
-In our [package.json](https://github.com/infoverload/prisma2-grpc/blob/master/package.json), let's add some scripts :
+In your [package.json](https://github.com/infoverload/prisma2-grpc/blob/master/package.json) file, add some scripts:
 
 ```json
 "scripts": {
-  "seed": "ts-node prisma/seed.ts",
-  "server": "ts-node server.ts",
-  "client": "ts-node client.ts"
+  "start": "ts-node src/index.ts"
 }
 ```
+
 ### 7.4 Run the project
 
 With everything in place, you can run the project!
