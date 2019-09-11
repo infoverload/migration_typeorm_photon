@@ -4,7 +4,6 @@
   "description": "Migrate from TypeORM to Photon",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
     "start": "tsc && node src/index.js",
     "typeorm": "./node_modules/.bin/typeorm "
   },
