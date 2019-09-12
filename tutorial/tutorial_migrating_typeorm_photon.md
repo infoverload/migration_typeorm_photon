@@ -521,7 +521,7 @@ npm install --save-dev typescript ts-node
 
 ### 7.2. Add TypeScript configuration
 
-Create a [tsconfig.json](https://github.com/infoverload/prisma2-grpc/blob/master/tsconfig.json) file in your project root and add:
+Create a [tsconfig.json](https://github.com/infoverload/migration_typeorm_photon/blob/master/tsconfig.json) file in your project root and add:
 
 ```json
 {
@@ -539,7 +539,7 @@ Create a [tsconfig.json](https://github.com/infoverload/prisma2-grpc/blob/master
 
 ### 7.3. Add a start script to `package.json`
 
-In your [package.json](https://github.com/infoverload/prisma2-grpc/blob/master/package.json) file, add a start script:
+In your [package.json](https://github.com/infoverload/migration_typeorm_photon/blob/master/package.json) file, add a start script:
 
 ```diff
 //...
