@@ -504,7 +504,7 @@ Now you can migrate the other routes following this pattern.  If you get stuck, 
 
 After you have implemented the routes in your main application file, it's time to set up your TypeScript project. 
 
-### 7.1. Initialize our project and install dependencies
+### 7.1. Initialize your project and install dependencies
 
 In your project root, initialize a new npm project: 
 
