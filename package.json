@@ -7,8 +7,8 @@
     "postinstall": "prisma2 generate"
   },
   "dependencies": {
-    "body-parser": "1.19.0",
-    "express": "4.17.1",
+    "body-parser": "1.20.1",
+    "express": "4.18.2",
     "prisma-client-lib": "1.34.8"
   },
   "devDependencies": {
